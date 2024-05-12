@@ -11,6 +11,7 @@ wandb_project_name   : "AES"
 notes                : "first note"
 truncation           : True
 max_length           : 512
+seed                 : 2024
 
 training_args :
   learning_rate               : 2e-5
