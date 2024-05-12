@@ -22,8 +22,8 @@ def prepare_dataset(config):
 def get_model(config):
 
     tokenizer = AutoTokenizer.from_pretrained(config.model_id)
-    config    = AutoConfig.from_pretrained(config.model_id,num_labels=config.num_labels)
-    model     = AutoModelForSequenceClassification.from_pretrained(config.model_id,config=config)
+    model_config    = AutoConfig.from_pretrained(config.model_id,num_labels=config.num_labels)
+    model     = AutoModelForSequenceClassification.from_pretrained(config.model_id,config=model_config)
 
     return tokenizer, model
 
