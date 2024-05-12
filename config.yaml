@@ -20,6 +20,6 @@ training_args :
   num_train_epochs            : 2
   weight_decay                : 0.01,
   evaluation_strategy         : "epoch"
-  save_strategy               : "no"
+  save_strategy               : "epoch"
   load_best_model_at_end      : True
   push_to_hub                 : False
