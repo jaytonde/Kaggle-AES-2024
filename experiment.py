@@ -9,7 +9,9 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
+from dotenv import load_dotenv
 
+load_dotenv()
 
 models_dict = {
     0 : "microsoft-debrta-v3-xsmall",
