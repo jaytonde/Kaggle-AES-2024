@@ -5,6 +5,8 @@ Usage:
 bash setup.sh <ENVIRON> <download_data_or_not>
 Example:
 bash setup.sh jarvislabs true
+
+!apt-get install dos2unix
 com
 
 ENVIRON=$1
