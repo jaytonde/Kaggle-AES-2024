@@ -34,7 +34,7 @@ else
 fi
 
 # install deps
-pip install -r requirements.txt --upgrade
+pip install -r requirements.txt
 source .env
 export KAGGLE_USERNAME=$KAGGLE_USERNAME
 export KAGGLE_KEY=$KAGGLE_KEY
