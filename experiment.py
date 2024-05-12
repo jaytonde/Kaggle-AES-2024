@@ -16,7 +16,7 @@ load_dotenv()
 def prepare_dataset(config):
     dataset_df          = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
     dataset_df['score'] = dataset_df['score'] - 1
-    dataset_df          = dataset_df.rename(columns={'score':'labels'})
+    dataset_df          = dataset_df.rename(columns={'score':'label'})
     dataset             = Dataset.from_pandas(dataset_df)
     return dataset
 
@@ -78,6 +78,8 @@ def main(config):
                                     compute_metrics = compute_metrics,
                                 )
     trainer.train()
+    trainer.save_model(out_dir)
+    tokenizer.save_pretrained(out_dir)
 
 
 
