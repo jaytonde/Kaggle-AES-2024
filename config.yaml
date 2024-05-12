@@ -23,3 +23,4 @@ training_args :
   save_strategy               : "no"
   push_to_hub                 : False
   warmup_ratio                : 0.1
+  fp16                        : True
