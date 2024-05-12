@@ -1,9 +1,14 @@
-import pandas as pd
+import os
+import sys
+import wandb
 import numpy as np
+import pandas as pd
 from datasets import Dataset
+from omegaconf import OmegaConf
+from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding
-from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
+from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
 
 
 models_dict = {
@@ -14,57 +19,15 @@ models_dict = {
 }
 
 
-tokenizer      = AutoTokenizer.from_pretrained("distilbert/distilbert-base-uncased")
-tokenized_imdb = imdb.map(preprocess_function, batched=True)
-
-
-class AESModel:
-    def __init__(self):
-        pass
-    
-    def forward():
-        pass
-
-def compute_metrics(eval_pred):
-    predictions, labels = eval_pred
-    predictions = np.argmax(predictions, axis=1)
-    return accuracy.compute(predictions=predictions, references=labels)
-
 def prepare_dataset(config):
     dataset_df  = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
+    dataset_df['score'] = dataset_df['score'] - 1
     dataset     = Dataset.from_pandas(dataset_df)
     return dataset
 
-def get_training_args(): 
-    training_args = TrainingArguments(
-                                            output_dir                  = "output",
-                                            learning_rate               = 2e-5,
-                                            per_device_train_batch_size = 8,
-                                            per_device_eval_batch_size  = 16,
-                                            num_train_epochs            = 2,
-                                            weight_decay                = 0.01,
-                                            evaluation_strategy         = "epoch",
-                                            save_strategy               = "epoch",
-                                            load_best_model_at_end      = True,
-                                            push_to_hub                 = False,
-                                    )
-
-    return training_args  
-
-def get_trainer(model,training_args,dataloader,tokenizer,data_collator,compute_metrics):
-trainer = Trainer(
-                        model           = model,
-                        args            = training_args,
-                        train_dataset   = tokenized_imdb["train"],
-                        eval_dataset    = tokenized_imdb["test"],
-                        tokenizer       = tokenizer,
-                        data_collator   = data_collator,
-                        compute_metrics = compute_metrics,
-                    )
-return trainer
 
 
-def get_function(config):
+def get_model(config):
 
     tokenizer = AutoTokenizer.from_pretrained(config.model_id)
     config    = AutoConfig.from_pretrained(config.model_id,num_labels=config.num_labels)
@@ -72,37 +35,57 @@ def get_function(config):
 
     return tokenizer, model
 
-def save_model():
-    pass
 
+def compute_metrics(eval_pred):
+    predictions, labels = eval_pred
+    qwk                 = cohen_kappa_score(labels, predictions.argmax(-1), weights="quadratic")
+    results             = {"qwk": qwk}
+    return results
 
+def tokenize_function(example,tokenizer,truncation,max_length):
+    return tokenizer(example["full_text"],truncation=truncation, max_length=max_length,  return_token_type_ids=False)
 
 def main(config):
 
     out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
     os.mkdir(out_dir, exist_ok = True)
 
-    set_seed(cfg.seed)
+    set_seed(config.seed)
 
-    if cfg.wandb_log:
-        cfg_dict = process_config_for_wandb(Config)
-        cfg_dict.update(vars(cmd_args))
+    if config.wandb_log:
         wandb.init(
-            project=cfg.wandb_project_name,
-            group=cfg.experiment_name,
-            name=f"{cfg.experiment_name}_fold_{fold}" if validate else f"{cfg.experiment_name}_full_fit",
-            notes=cfg.notes,
-            config=cfg_dict,
+            project=config.wandb_project_name,
+            group=config.experiment_name,
+            name=f"{config.experiment_name}_fold_{config.fold}",
+            notes=config.notes,
+            config=OmegaConf.to_container(config, resolve=True),
         )
 
+    
+    dataset           = prepare_dataset(config)
+
+    train_dataset = dataset.filter(lambda example: example["fold"] != config.fold)
+    eval_dataset  = dataset.filter(lambda example: example["fold"] == config.fold)
+
+    train_dataset = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
+    eval_dataset  = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
+
     tokenizer, model  = get_model(config)
-    dataset           = utilities.prepare_dataset(config)
-    training_args     = utilities.get_training_args(tokenizer,dataset,model)
-    trainer           = utilities.get_trainer()
+
+    data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+    args = TrainingArguments(output_dir=out_dir, **config.trainer_args)
+
+    trainer = Trainer(
+        model=model,
+        args=args,
+        train_dataset=train_dataset,
+        eval_dataset=eval_dataset,
+        data_collator=data_collator,
+        compute_metrics=compute_metrics,
+    )
 
     trainer.train()
-
-    utilities.save_model()
 
 
 
