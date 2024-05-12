@@ -48,7 +48,7 @@ def tokenize_function(example,tokenizer,truncation,max_length):
 def main(config):
 
     out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
-    os.mkdir(out_dir, exist_ok = True)
+    os.makedirs(out_dir, exist_ok = True)
 
     set_seed(config.seed)
 
