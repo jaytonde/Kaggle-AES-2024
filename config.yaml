@@ -1,5 +1,5 @@
 experiment_name      : "AES-EXP-1"
-training_filename    : "train_with_prompts.csv"
+training_filename    : "train.csv"
 data_dir             : "./input/"
 artifacts_dir        : "./output/"
 output_dir           : "${artifacts_dir}/${experiment_name}"
