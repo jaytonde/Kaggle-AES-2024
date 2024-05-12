@@ -1,6 +1,8 @@
-import sys
+import pandas as pd
+import numpy as np
 from datasets import Dataset
-from transformers import AutoTokenizer
+from sklearn.model_selection import StratifiedKFold
+from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer
 
 
@@ -28,9 +30,8 @@ def compute_metrics(eval_pred):
     predictions = np.argmax(predictions, axis=1)
     return accuracy.compute(predictions=predictions, references=labels)
 
-def prepare_dataset(self):
-    dataset_dir = '/input/'
-    dataset_df  = pd.read_csv(dataset_dir+'train.csv')
+def prepare_dataset(config):
+    dataset_df  = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
     dataset     = Dataset.from_pandas(dataset_df)
     return dataset
 
@@ -62,6 +63,15 @@ trainer = Trainer(
                     )
 return trainer
 
+
+def get_function(config):
+
+    tokenizer = AutoTokenizer.from_pretrained(config.model_id)
+    config    = AutoConfig.from_pretrained(config.model_id,num_labels=config.num_labels)
+    model     = AutoModelForSequenceClassification.from_pretrained(config.model_id,config=config)
+
+    return tokenizer, model
+
 def save_model():
     pass
 
@@ -69,10 +79,26 @@ def save_model():
 
 def main(config):
 
-    model = AESModel()
-    dataset       = utilities.prepare_dataset()
-    training_args = utilities.get_training_args(model,training_args,dataset,tokenizer,data_collator,compute_metrics)
-    trainer       = utilities.get_trainer()
+    out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
+    os.mkdir(out_dir, exist_ok = True)
+
+    set_seed(cfg.seed)
+
+    if cfg.wandb_log:
+        cfg_dict = process_config_for_wandb(Config)
+        cfg_dict.update(vars(cmd_args))
+        wandb.init(
+            project=cfg.wandb_project_name,
+            group=cfg.experiment_name,
+            name=f"{cfg.experiment_name}_fold_{fold}" if validate else f"{cfg.experiment_name}_full_fit",
+            notes=cfg.notes,
+            config=cfg_dict,
+        )
+
+    tokenizer, model  = get_model(config)
+    dataset           = utilities.prepare_dataset(config)
+    training_args     = utilities.get_training_args(tokenizer,dataset,model)
+    trainer           = utilities.get_trainer()
 
     trainer.train()
 
