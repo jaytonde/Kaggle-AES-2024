@@ -44,9 +44,9 @@ if [ "$DOWNLOAD_DATA" == "true" ]
 then
     mkdir input/
     cd input/
-    kaggle datasets download -d nbroad/persaude-corpus-2
-    unzip persaude-corpus-2.zip
-    rm persaude-corpus-2.zip
+    kaggle datasets download -d atharvaingle/aes-scoring-2-0-data
+    unzip aes-scoring-2-0-data.zip
+    rm aes-scoring-2-0-data.zip
 else
     echo "Data download disabled"
 fi
