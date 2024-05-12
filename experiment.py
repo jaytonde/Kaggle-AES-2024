@@ -66,7 +66,7 @@ def main(config):
 
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
-    args = TrainingArguments(output_dir=out_dir, **config.trainer_args)
+    args = TrainingArguments(output_dir=out_dir, **config.training_args)
 
     trainer = Trainer(
         model=model,
