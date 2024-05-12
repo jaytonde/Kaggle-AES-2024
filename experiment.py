@@ -13,21 +13,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-models_dict = {
-    0 : "microsoft-debrta-v3-xsmall",
-    1 : "microsoft-debrta-v3-small",
-    2 : "microsoft-debrta-v3-base",
-    3 : "microsoft-debrta-v3-large",
-}
-
-
 def prepare_dataset(config):
     dataset_df  = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
     dataset_df['score'] = dataset_df['score'] - 1
     dataset     = Dataset.from_pandas(dataset_df)
     return dataset
-
-
 
 def get_model(config):
 
@@ -69,10 +59,10 @@ def main(config):
     train_dataset = dataset.filter(lambda example: example["fold"] != config.fold)
     eval_dataset  = dataset.filter(lambda example: example["fold"] == config.fold)
 
+    tokenizer, model  = get_model(config)
+
     train_dataset = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
     eval_dataset  = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
-
-    tokenizer, model  = get_model(config)
 
     data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
