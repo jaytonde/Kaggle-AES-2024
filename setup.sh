@@ -1,26 +1,52 @@
+#!/bin/bash
+<<com
+Supports colab, kaggle, paperspace, lambdalabs and jarvislabs environment setup
+Usage:
+bash setup.sh <ENVIRON> <download_data_or_not>
+Example:
+bash setup.sh jarvislabs true
+com
 
+ENVIRON=$1
+DOWNLOAD_DATA=$2
+PROJECT="Kaggle-AES-2024"
+
+
+# get source code from GitHub
+git config --global user.name "jaytonde"
+git config --global user.email "jaytonde05@gmail.com"
+git clone https://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/jaytonde/Kaggle-AES-2024.git
+
+if [ "$1" == "colab" ]
+then
+    cd /content/$PROJECT
+    
+elif [ "$1" == "kaggle" ]
+then
+    cd /kaggle/working/$PROJECT
+
+elif [ "$1" == "paperspace" ]
+then
+    cd /notebooks/$PROJECT
+
+else
+    echo "Unrecognized environment"
+fi
+
+# install deps
+pip install -r requirements.txt --upgrade
 source .env
+export KAGGLE_USERNAME=$KAGGLE_USERNAME
+export KAGGLE_KEY=$KAGGLE_KEY
 
-
-echo "Setting up root dir"
-#Setup directory based on platform
-platform = "paperspace"
-if   platform == "paperspace":
-     root_dir  = "/notebooks"
-elif platform == "kaggle":
-     root_dir  = "/kaggle/working"
-elif platform == "colab":
-     root_dir  = "/content"
-
-cd root_dir
-echo "Setting up root dir completed and current wd is $(root_dir)"
-
-echo "Downloading the dataset..."
-pip install kaggle
-export KAGGLE_USERNAME = KAGGLE_USERNAME
-export KAGGLE_KEY      = KAGGLE_KEY
-
-kaggle datasets download -d cdeotte/brain-spectrograms
-sudo apt install unzip
-unzip zip_path
-echo "Dataset download completed..!"
+# change the data id as per the experiment
+if [ "$DOWNLOAD_DATA" == "true" ]
+then
+    mkdir input/
+    cd input/
+    kaggle datasets download -d nbroad/persaude-corpus-2
+    unzip persaude-corpus-2.zip
+    rm persaude-corpus-2.zip
+else
+    echo "Data download disabled"
+fi
