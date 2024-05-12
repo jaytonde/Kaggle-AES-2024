@@ -15,7 +15,7 @@ PROJECT="Kaggle-AES-2024"
 # get source code from GitHub
 git config --global user.name "jaytonde"
 git config --global user.email "jaytonde05@gmail.com"
-git clone https://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/jaytonde/Kaggle-AES-2024.git
+git clone https://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@github.com/jaytonde/Kaggle-AES-2024.git
 
 if [ "$1" == "colab" ]
 then
