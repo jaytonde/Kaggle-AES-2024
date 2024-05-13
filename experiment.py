@@ -68,7 +68,7 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
     logits_df          = pd.DataFrame(logits, columns=[f"pred_{i}" for i in range(1, 7)])
     result_df          = pd.concat([eval_df, logits_df], axis=1)
 
-    file_path          = out_dir / f"fold_{config.fold}_oof.csv"
+    file_path          = out_dir + '/' +f"fold_{config.fold}_oof.csv"
     result_df.to_csv(file_path, index=False)
 
     print(f"OOF is saved at : {file_path}")
