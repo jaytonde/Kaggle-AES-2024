@@ -63,10 +63,10 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
     logits, _, _       = trainer.predict(eval_dataset)
     predictions        = logits.argmax(-1) + 1
-    valid_df["pred"]   = predictions
+    eval_df["pred"]   = predictions
 
     logits_df          = pd.DataFrame(logits, columns=[f"pred_{i}" for i in range(1, 7)])
-    result_df          = pd.concat([valid_df, logits_df], axis=1)
+    result_df          = pd.concat([eval_df, logits_df], axis=1)
 
     file_path          = out_dir / f"fold_{config.fold}_oof.csv"
     result_df.to_csv(file_path, index=False)
