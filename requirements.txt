@@ -11,3 +11,4 @@ protobuf==3.20.0
 accelerate
 huggingface-hub
 scikit-learn
+discord.py
