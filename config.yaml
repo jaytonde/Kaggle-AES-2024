@@ -13,6 +13,7 @@ truncation           : True
 max_length           : 512
 seed                 : 2024
 full_fit             : False
+notify_discord       : True
 
 training_args :
   learning_rate               : 4.0e-5

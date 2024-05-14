@@ -4,6 +4,7 @@ import wandb
 import warnings
 import numpy as np
 import pandas as pd
+from datetime import datetime
 from datasets import Dataset
 from dotenv import load_dotenv
 from omegaconf import OmegaConf
@@ -78,13 +79,28 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
 def main(config):
 
-    if config.full_fit:
+    start_time = datetime.now()
+
+    try:
+        from discordwebhook import Discord
+        discord        = Discord(url=os.environ["DISCORD_WEBHOOK"])
+        notify_discord = True
+    except ImportError:
+        notify_discord = False
+
+    if notify_discord:
+        discord.post(
+            content=f"🚀 Starting experiment {config.experiment_name} at time : {start_time}"
+        )
+
+    if config.full_fit
+    :
         print(f"Running experiment in full_fit mode.....")
         out_dir = os.path.join(config.output_dir,f"full_fit")
     else:
         print(f"Running experiment in folding mode.....")
         out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
-        
+
     os.makedirs(out_dir, exist_ok = True)
 
     set_seed(config.seed)
@@ -147,6 +163,13 @@ def main(config):
 
     push_to_huggingface(config, out_dir)
 
+
+    end_time = datetime.now()
+    finish_str = f"🎉 Experiment {cfg.experiment_name} completed at time: {end_time}. Total time taken : {(end_time-start_time)/60} minutes."
+    if notify_discord:
+        discord.post(content=finish_str)
+    
+    print(f"Total time taken by experiment {(end_time-start_time)/60} minutes.")
     print(f"This is the end.....")
 
 if __name__ == "__main__":
