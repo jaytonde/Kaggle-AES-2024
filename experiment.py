@@ -150,7 +150,8 @@ def main(config):
 
 if __name__ == "__main__":
     config_file_path = sys.argv.pop(1)
-    fit_mode         = sys.argv.pop(2)
+    print(f"file configs : {OmegaConf.load(config_file_path)}\n\n\n\n\")
+
+    print(f"clf configs : {OmegaConf.from_cli()}")
     cfg              = OmegaConf.merge(OmegaConf.load(config_file_path), OmegaConf.from_cli())
-    cfg.full_fit     = fit_mode
     main(cfg)
