@@ -46,7 +46,7 @@ def push_to_huggingface(config, out_dir):
     
     login(token=os.environ["HF_TOKEN"], write_permission=True)  
 
-    repo_id = os.environ["HF_TOKEN"] + '/' + config.experiment_name
+    repo_id = os.environ["HF_USERNAME"] + '/' + config.experiment_name
     api     = HfApi()
     
     print(f"Uploading files to huggingface repo...")
