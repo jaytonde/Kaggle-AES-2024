@@ -79,7 +79,7 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 def main(config):
 
     print(f"Running experiment in {config.full_fit} model.....")
-    
+
     if config.full_fit == "full_fit":
         out_dir = os.path.join(config.output_dir,f"full_fit")
     else:
@@ -150,5 +150,7 @@ def main(config):
 
 if __name__ == "__main__":
     config_file_path = sys.argv.pop(1)
+    fit_mode         = sys.argv.pop(2)
     cfg              = OmegaConf.merge(OmegaConf.load(config_file_path), OmegaConf.from_cli())
+    cfg.full_fit     = fit_mode
     main(cfg)
