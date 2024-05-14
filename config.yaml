@@ -12,6 +12,7 @@ notes                : "first note"
 truncation           : True
 max_length           : 512
 seed                 : 2024
+full_fit             : "folding"
 
 training_args :
   learning_rate               : 4.0e-5

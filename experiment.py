@@ -75,32 +75,48 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
 def main(config):
 
-    out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
+    if config.full_fit == "full_fit":
+        out_dir = os.path.join(config.output_dir,f"full_fit")
+    else:
+        out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
     os.makedirs(out_dir, exist_ok = True)
 
     set_seed(config.seed)
 
     if config.wandb_log:
+        name = ''
+        if config.full_fit == "full_fit":
+            name = f"fold_{config.fold}"
+        else:
+            name = "full_fit"
+
         wandb.init(
                         project = config.wandb_project_name,
                         group   = config.experiment_name,
-                        name    = f"fold_{config.fold}",
+                        name    = name,
                         notes   = config.notes,
                         config  = OmegaConf.to_container(config, resolve=True)
-                   )
+                )
 
     dataset_df        = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
 
-    train_df          = dataset_df[dataset_df["fold"] != config.fold]
-    eval_df           = dataset_df[dataset_df["fold"] == config.fold]
+    if config.full_fit == "full_fit":
+        train_df          = dataset_df
+        train_dataset     = prepare_dataset(config, train_df)
+        eval_dataset      = None
+    else:
+        train_df          = dataset_df[dataset_df["fold"] != config.fold]
+        eval_df           = dataset_df[dataset_df["fold"] == config.fold]
 
-    train_dataset     = prepare_dataset(config, train_df)
-    eval_dataset      = prepare_dataset(config, eval_df)
+        train_dataset     = prepare_dataset(config, train_df)
+        eval_dataset      = prepare_dataset(config, eval_df)
 
     tokenizer, model  = get_model(config)
 
     train_dataset     = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
-    eval_dataset      = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
+
+    if config.full_fit != "full_fit":
+        eval_dataset      = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 
     data_collator     = DataCollatorWithPadding(tokenizer=tokenizer)
 
@@ -118,12 +134,14 @@ def main(config):
     trainer.save_model(out_dir)
     tokenizer.save_pretrained(out_dir)
 
-    inference(config, trainer, eval_dataset, eval_df, out_dir)
+    if config.full_fit == "full_fit":
+        inference(config, trainer, train_dataset, train_df, out_dir)
+    else:
+        inference(config, trainer, eval_dataset, eval_df, out_dir)
+
     push_to_huggingface(config, out_dir)
 
     print(f"This is the end.....")
-
-
 
 if __name__ == "__main__":
     config_file_path = sys.argv.pop(1)
