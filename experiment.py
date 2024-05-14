@@ -144,14 +144,23 @@ def main(config):
 
     args              = TrainingArguments(output_dir=out_dir, **config.training_args)
 
-    trainer           = Trainer (
-                                    model           = model,
-                                    args            = args,
-                                    train_dataset   = train_dataset,
-                                    eval_dataset    = eval_dataset,
-                                    data_collator   = data_collator,
-                                    compute_metrics = compute_metrics,
-                                )
+    if config.full_fit:
+        trainer           = Trainer (
+                                        model           = model,
+                                        args            = args,
+                                        train_dataset   = train_dataset,
+                                        data_collator   = data_collator,
+                                        compute_metrics = compute_metrics,
+                                    )
+    else:
+        trainer           = Trainer (
+                                        model           = model,
+                                        args            = args,
+                                        train_dataset   = train_dataset,
+                                        eval_dataset    = eval_dataset,
+                                        data_collator   = data_collator,
+                                        compute_metrics = compute_metrics,
+                                    )
     trainer.train()
     trainer.save_model(out_dir)
     tokenizer.save_pretrained(out_dir)
