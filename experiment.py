@@ -80,7 +80,7 @@ def main(config):
 
     print(f"Running experiment in {config.full_fit} model.....")
 
-    if config.full_fit == "full_fit":
+    if config.full_fit:
         out_dir = os.path.join(config.output_dir,f"full_fit")
     else:
         out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
@@ -90,7 +90,7 @@ def main(config):
 
     if config.wandb_log:
         name = ''
-        if config.full_fit == "full_fit":
+        if config.full_fit:
             name = f"fold_{config.fold}"
         else:
             name = "full_fit"
@@ -105,7 +105,7 @@ def main(config):
 
     dataset_df        = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
 
-    if config.full_fit == "full_fit":
+    if config.full_fit:
         train_df          = dataset_df
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = None
@@ -120,7 +120,7 @@ def main(config):
 
     train_dataset     = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 
-    if config.full_fit != "full_fit":
+    if not config.full_fit:
         eval_dataset      = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 
     data_collator     = DataCollatorWithPadding(tokenizer=tokenizer)
@@ -139,7 +139,7 @@ def main(config):
     trainer.save_model(out_dir)
     tokenizer.save_pretrained(out_dir)
 
-    if config.full_fit == "full_fit":
+    if config.full_fit:
         inference(config, trainer, train_dataset, train_df, out_dir)
     else:
         inference(config, trainer, eval_dataset, eval_df, out_dir)
@@ -150,8 +150,5 @@ def main(config):
 
 if __name__ == "__main__":
     config_file_path = sys.argv.pop(1)
-    print(f"file configs : {OmegaConf.load(config_file_path)}\n\n\n\n")
-
-    print(f"clf configs : {OmegaConf.from_cli()}")
     cfg              = OmegaConf.merge(OmegaConf.load(config_file_path), OmegaConf.from_cli())
     main(cfg)
