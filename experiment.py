@@ -78,12 +78,13 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
 def main(config):
 
-    print(f"Running experiment in {config.full_fit} model.....")
-
     if config.full_fit:
+        print(f"Running experiment in full_fit mode.....")
         out_dir = os.path.join(config.output_dir,f"full_fit")
     else:
+        print(f"Running experiment in folding mode.....")
         out_dir = os.path.join(config.output_dir,f"fold_{config.fold}")
+        
     os.makedirs(out_dir, exist_ok = True)
 
     set_seed(config.seed)
