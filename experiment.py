@@ -1,6 +1,7 @@
 import os
 import sys
 import wandb
+import warnings
 import numpy as np
 import pandas as pd
 from datasets import Dataset
@@ -13,6 +14,8 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
+
+warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 
 
 load_dotenv()
@@ -75,6 +78,8 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
 def main(config):
 
+    print(f"Running experiment in {config.full_fit} model.....")
+    
     if config.full_fit == "full_fit":
         out_dir = os.path.join(config.output_dir,f"full_fit")
     else:
