@@ -49,7 +49,7 @@ def push_to_huggingface(config, out_dir):
     repo_id = os.environ["HF_TOKEN"] + '/' + config.experiment_name
     api     = HfApi()
     
-    print(f"Uploading {file} to huggingface repo...")
+    print(f"Uploading files to huggingface repo...")
 
     repo_url     = hf_hub.create_repo(repo_id, exist_ok=True, private=True)
     path_in_repo = f"fold_{fold}"
