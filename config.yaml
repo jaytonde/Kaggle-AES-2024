@@ -21,8 +21,8 @@ training_args :
   per_device_eval_batch_size  : 16
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : "no"
-  save_strategy               : "no"
+  evaluation_strategy         : 'no'
+  save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.1
   fp16                        : True
