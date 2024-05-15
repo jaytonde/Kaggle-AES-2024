@@ -108,9 +108,9 @@ def main(config):
     if config.wandb_log:
         name = ''
         if config.full_fit:
-            name = f"fold_{config.fold}"
-        else:
             name = "full_fit"
+        else:
+            name = f"fold_{config.fold}"
 
         wandb.init(
                         project = config.wandb_project_name,
