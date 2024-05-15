@@ -85,7 +85,7 @@ def main(config):
         from discordwebhook import Discord
         discord        = Discord(url=os.environ["DISCORD_WEBHOOK"])
         notify_discord = True
-    except exception as e:
+    except Exception as e:
         print(f"will not able to log to discord cause of error : {e}")
         notify_discord = False
 
