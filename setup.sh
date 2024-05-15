@@ -46,9 +46,9 @@ if [ "$DOWNLOAD_DATA" == "true" ]
 then
     mkdir input/
     cd input/
-    kaggle datasets download -d jaytonde/tempdataset
-    unzip tempdataset.zip
-    rm tempdataset.zip
+    kaggle datasets download -d jaytonde/aes-dataset
+    unzip aes-dataset.zip
+    rm aes-dataset.zip
 else
     echo "Data download disabled"
 fi
