@@ -12,3 +12,4 @@ accelerate
 huggingface-hub
 scikit-learn
 discord.py
+discord-webhook=1.3.1
