@@ -52,17 +52,17 @@ class MeanPooling(nn.Module):
 
 
 class AESModel(DebertaV2PreTrainedModel):
-    def __init__(self, config):
+    def __init__(self, user_config = config, model_config=model_config):
         super().__init__(config)
-        self.deberta    = DebertaV2Model(config)
-        self.num_labels = config.num_labels
+        self.deberta    = DebertaV2Model(model_config)
+        self.num_labels = model_config.num_labels
 
-        for i in range(0, cofig.num_freez_layers, 1):
+        for i in range(0, user_config.num_freez_layers, 1):
             for n,p in self.deberta.encoder.layer[i].named_parameters():
                 p.requires_grad = False
 
         self.pooler     = MeanPooling()
-        self.classifier = nn.Linear(config.hidden_size, self.num_labels)
+        self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
 
     def forward(
@@ -95,7 +95,7 @@ def get_model(config):
 
     tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
     model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
-    model        = AESModel(model_config)
+    model        = AESModel(user_config = config,model_config=model_config)
 
     return tokenizer, model
 
