@@ -56,6 +56,11 @@ class AESModel(DebertaV2PreTrainedModel):
         super().__init__(config)
         self.deberta    = DebertaV2Model(config)
         self.num_labels = config.num_labels
+
+        for i in range(0, cofig.num_freez_layers, 1):
+            for n,p in self.deberta.encoder.layer[i].named_parameters():
+                p.requires_grad = False
+
         self.pooler     = MeanPooling()
         self.classifier = nn.Linear(config.hidden_size, self.num_labels)
         self.post_init()
