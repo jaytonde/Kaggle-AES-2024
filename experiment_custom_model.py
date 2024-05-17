@@ -1,15 +1,15 @@
 import os
 import sys
 import wandb
-import warnings
 import torch
-import torch.nn as nn
-from torch.nn import Parameter
-import torch.nn.functional as F
+import warnings
 import numpy as np
 import pandas as pd
+import torch.nn as nn
 from datetime import datetime
 from datasets import Dataset
+from torch.nn import Parameter
+import torch.nn.functional as F
 from dotenv import load_dotenv
 from omegaconf import OmegaConf
 import huggingface_hub as hf_hub
@@ -17,7 +17,7 @@ from huggingface_hub import HfApi
 from huggingface_hub import login
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
-from transformers.modeling_outputs import SequenceClassifierOutputz
+from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding, BertPreTrainedModel
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
 
