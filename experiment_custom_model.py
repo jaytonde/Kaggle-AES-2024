@@ -2,6 +2,10 @@ import os
 import sys
 import wandb
 import warnings
+import torch
+import torch.nn as nn
+from torch.nn import Parameter
+import torch.nn.functional as F
 import numpy as np
 import pandas as pd
 from datetime import datetime
@@ -21,6 +25,84 @@ warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 
 load_dotenv()
 
+
+class MeanPooling(nn.Module):
+    def __init__(self):
+        super(MeanPooling, self).__init__()
+
+    def forward(self, last_hidden_state, attention_mask):
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float() #expanding the attention mask to match the dimensions of last_hidden_state. unsqueeze(-1) adds a new dimension to the attention mask tensor
+        sum_embeddings      = torch.sum(last_hidden_state * input_mask_expanded, 1)                 #This line calculates the sum of the element-wise multiplication of last_hidden_state and input_mask_expanded along the second dimension (axis 1). 
+        sum_mask            = input_mask_expanded.sum(1)                                            #This line calculates the sum of input_mask_expanded along the second dimension, resulting in a tensor containing the count of non-padding tokens for each input sequence.
+        sum_mask            = torch.clamp(sum_mask, min=1e-9)                                       #This line clamps the values of sum_mask to ensure that they are not too small, preventing division by zero errors. 
+        mean_embeddings     = sum_embeddings / sum_mask
+        return mean_embeddings
+
+
+class CustomModel(nn.Module):
+    def __init__(self, cfg, config_path=None, pretrained=False):
+        super().__init__()
+        self.cfg = cfg
+        # Load config by inferencing it from the model name.
+        if config_path is None:
+            self.config                              = AutoConfig.from_pretrained(cfg.model_id, output_hidden_states=True)
+            self.config.hidden_dropout               = 0.
+            self.config.hidden_dropout_prob          = 0.
+            self.config.attention_dropout            = 0.
+            self.config.attention_probs_dropout_prob = 0.
+        # Load config from a file.
+        else:
+            self.config = torch.load(config_path)
+
+        if pretrained:
+            self.model = AutoModel.from_pretrained(cfg.MODEL, config=self.config)
+        else:
+            self.model = AutoModel.from_pretrained(self.config)
+
+        if self.cfg.GRADIENT_CHECKPOINTING:
+            self.model.gradient_checkpointing_enable()
+
+        # Add MeanPooling and Linear head at the end to transform the Model into a RegressionModel
+        self.pool = MeanPooling()
+        self.fc   = nn.Linear(self.config.hidden_size, config.NUM_CLASSES)
+        self._init_weights(self.fc)
+
+    def _init_weights(self, module):
+        """
+        This method initializes weights for different types of layers. The type of layers
+        supported are nn.Linear, nn.Embedding and nn.LayerNorm.
+        """
+        if isinstance(module, nn.Linear):
+            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            if module.bias is not None:
+                module.bias.data.zero_()
+        elif isinstance(module, nn.Embedding):
+            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            if module.padding_idx is not None:
+                module.weight.data[module.padding_idx].zero_()
+        elif isinstance(module, nn.LayerNorm):
+            module.bias.data.zero_()
+            module.weight.data.fill_(1.0)
+
+    def feature(self, inputs):
+        """
+        This method makes a forward pass through the model, get the last hidden state (embedding)
+        and pass it through the MeanPooling layer.
+        """
+        outputs            = self.model(**inputs)
+        last_hidden_states = outputs[0]
+        feature            = self.pool(last_hidden_states, inputs['attention_mask'])
+        return feature
+
+    def forward(self, inputs):
+        """
+        This method makes a forward pass through the model, the MeanPooling layer and finally
+        then through the Linear layer to get a regression value.
+        """
+        feature = self.feature(inputs)
+        output  = self.fc(feature)
+        return output
+
 def prepare_dataset(config, dataset_df):
 
     dataset_df['score'] = dataset_df['score'] - 1
@@ -28,14 +110,6 @@ def prepare_dataset(config, dataset_df):
     dataset_obj         = Dataset.from_pandas(dataset_df)
 
     return dataset_obj
-
-def get_model(config):
-
-    tokenizer       = AutoTokenizer.from_pretrained(config.model_id)
-    model_config    = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
-    model           = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
-
-    return tokenizer, model
 
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
@@ -71,13 +145,13 @@ def push_to_huggingface(config, out_dir):
     api.upload_file(
         path_or_fileobj="experiment.py",
         path_in_repo=path_in_repo,
-        repo_id=repo_id,
+        repo_id=config.HUGGINGFACE_REPO,
         repo_type="model",
         )
     api.upload_file(
         path_or_fileobj="config.yaml",
         path_in_repo=path_in_repo,
-        repo_id=repo_id,
+        repo_id=config.HUGGINGFACE_REPO,
         repo_type="model",
         )
 
