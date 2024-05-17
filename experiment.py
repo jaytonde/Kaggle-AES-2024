@@ -55,11 +55,31 @@ def push_to_huggingface(config, out_dir):
     
     print(f"Uploading files to huggingface repo...")
 
-    repo_url     = hf_hub.create_repo(repo_id, exist_ok=True, private=True)
-    path_in_repo = f"fold_{config.fold}"
-    api.upload_folder(
-        folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
-    )
+    if config.full_fit:
+        repo_url     = hf_hub.create_repo(repo_id, exist_ok=True, private=True)
+        path_in_repo = f"full_fit"
+        api.upload_folder(
+            folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
+        )
+    else:
+        repo_url     = hf_hub.create_repo(repo_id, exist_ok=True, private=True)
+        path_in_repo = f"fold_{config.fold}"
+        api.upload_folder(
+            folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
+        )
+    
+    api.upload_file(
+        path_or_fileobj="experiment.py",
+        path_in_repo=path_in_repo,
+        repo_id=config.HUGGINGFACE_REPO,
+        repo_type="model",
+        )
+    api.upload_file(
+        path_or_fileobj="config.yaml",
+        path_in_repo=path_in_repo,
+        repo_id=config.HUGGINGFACE_REPO,
+        repo_type="model",
+        )
 
     print(f"All output folder is push to huggingface repo for experiment : {config.experiment_name}")
 
