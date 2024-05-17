@@ -18,14 +18,24 @@ from huggingface_hub import login
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers.modeling_outputs import SequenceClassifierOutput
-from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding, BertPreTrainedModel
-from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
+from transformers import AutoModelForSequenceClassification
+
+from transformers import (
+    AutoConfig,
+    AutoTokenizer,
+    DataCollatorWithPadding,
+    DebertaV2Model,
+    DebertaV2PreTrainedModel,
+    ProgressCallback,
+    Trainer,
+    TrainingArguments,
+    set_seed,
+)
 
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 
 
 load_dotenv()
-
 
 
 class MeanPooling(nn.Module):
