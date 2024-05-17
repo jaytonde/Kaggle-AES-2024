@@ -41,12 +41,12 @@ class MeanPooling(nn.Module):
 class CustomModel(nn.Module):
     def __init__(self, config=None, pretrained=False):
         super().__init__()
-
+        self.model_config = None
         if pretrained:
-            model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
-            model        = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
-            self.pool    = MeanPooling()
-            self.fc      = nn.Linear(model_config.hidden_size, config.num_labels)
+            self.model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
+            model             = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=self.model_config)
+            self.pool         = MeanPooling()
+            self.fc           = nn.Linear(self.model_config.hidden_size, config.num_labels)
             self._init_weights(self.fc)
         else:
             print("Loading model for inference.....")
@@ -57,11 +57,11 @@ class CustomModel(nn.Module):
         supported are nn.Linear, nn.Embedding and nn.LayerNorm.
         """
         if isinstance(module, nn.Linear):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            module.weight.data.normal_(mean=0.0, std=self.model_config.initializer_range)
             if module.bias is not None:
                 module.bias.data.zero_()
         elif isinstance(module, nn.Embedding):
-            module.weight.data.normal_(mean=0.0, std=self.config.initializer_range)
+            module.weight.data.normal_(mean=0.0, std=self.model_config.initializer_range)
             if module.padding_idx is not None:
                 module.weight.data[module.padding_idx].zero_()
         elif isinstance(module, nn.LayerNorm):
