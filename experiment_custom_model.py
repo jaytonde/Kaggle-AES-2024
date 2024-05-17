@@ -8,7 +8,7 @@ import pandas as pd
 import torch.nn as nn
 from datetime import datetime
 from datasets import Dataset
-from torch.nn import Parameter
+from torch.nn import Parameter, CrossEntropyLoss
 import torch.nn.functional as F
 from dotenv import load_dotenv
 from omegaconf import OmegaConf
@@ -29,8 +29,7 @@ from transformers import (
     ProgressCallback,
     Trainer,
     TrainingArguments,
-    set_seed,
-    CrossEntropyLoss
+    set_seed
 )
 
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
