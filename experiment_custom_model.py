@@ -30,6 +30,7 @@ from transformers import (
     Trainer,
     TrainingArguments,
     set_seed,
+    CrossEntropyLoss
 )
 
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
