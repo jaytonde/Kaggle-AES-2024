@@ -95,7 +95,7 @@ def get_model(config):
 
     tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
     model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
-    model        = AESModel(user_config = config,model_config=model_config)
+    model        = AESModel(user_config = config, model_config=model_config)
 
     return tokenizer, model
 
