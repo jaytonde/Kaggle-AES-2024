@@ -46,7 +46,7 @@ class CustomModel(nn.Module):
             model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
             model        = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
             self.pool    = MeanPooling()
-            self.fc      = nn.Linear(self.config.hidden_size, config.NUM_CLASSES)
+            self.fc      = nn.Linear(config.hidden_size, config.NUM_CLASSES)
             self._init_weights(self.fc)
         else:
             print("Loading model for inference.....")

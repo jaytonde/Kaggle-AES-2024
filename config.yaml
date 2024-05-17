@@ -1,4 +1,4 @@
-experiment_name      : "AES-EXP-15"
+experiment_name      : "AES-EXP-16"
 training_filename    : "final_train.csv"
 data_dir             : "./input/"
 artifacts_dir        : "./output/"
@@ -8,7 +8,7 @@ model_id             : "microsoft/deberta-v3-base"
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "first note"
+notes                : "Added mean pooling"
 truncation           : True
 max_length           : 1024
 seed                 : 2024
