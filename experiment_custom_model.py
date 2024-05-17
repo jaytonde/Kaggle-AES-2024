@@ -17,7 +17,8 @@ from huggingface_hub import HfApi
 from huggingface_hub import login
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
-from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding
+from transformers.modeling_outputs import SequenceClassifierOutputz
+from transformers import AutoTokenizer, AutoConfig, DataCollatorWithPadding, BertPreTrainedModel
 from transformers import AutoModelForSequenceClassification, TrainingArguments, Trainer, set_seed
 
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
@@ -26,72 +27,60 @@ warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 load_dotenv()
 
 
+
 class MeanPooling(nn.Module):
     def __init__(self):
         super(MeanPooling, self).__init__()
 
     def forward(self, last_hidden_state, attention_mask):
-        input_mask_expanded = attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float() #expanding the attention mask to match the dimensions of last_hidden_state. unsqueeze(-1) adds a new dimension to the attention mask tensor
-        sum_embeddings      = torch.sum(last_hidden_state * input_mask_expanded, 1)                 #This line calculates the sum of the element-wise multiplication of last_hidden_state and input_mask_expanded along the second dimension (axis 1). 
-        sum_mask            = input_mask_expanded.sum(1)                                            #This line calculates the sum of input_mask_expanded along the second dimension, resulting in a tensor containing the count of non-padding tokens for each input sequence.
-        sum_mask            = torch.clamp(sum_mask, min=1e-9)                                       #This line clamps the values of sum_mask to ensure that they are not too small, preventing division by zero errors. 
+        input_mask_expanded = (attention_mask.unsqueeze(-1).expand(last_hidden_state.size()).float())
+        sum_embeddings      = torch.sum(last_hidden_state * input_mask_expanded, 1)
+        sum_mask            = input_mask_expanded.sum(1)
+        sum_mask            = torch.clamp(sum_mask, min=1e-9)
         mean_embeddings     = sum_embeddings / sum_mask
         return mean_embeddings
 
-class CustomModel(nn.Module):
-    def __init__(self, config=None, pretrained=False):
-        super().__init__()
-        self.model_config = None
-        if pretrained:
-            self.model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
-            model             = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=self.model_config)
-            self.pool         = MeanPooling()
-            self.fc           = nn.Linear(self.model_config.hidden_size, config.num_labels)
-            self._init_weights(self.fc)
-        else:
-            print("Loading model for inference.....")
-            
-    def _init_weights(self, module):
-        """
-        This method initializes weights for different types of layers. The type of layers
-        supported are nn.Linear, nn.Embedding and nn.LayerNorm.
-        """
-        if isinstance(module, nn.Linear):
-            module.weight.data.normal_(mean=0.0, std=self.model_config.initializer_range)
-            if module.bias is not None:
-                module.bias.data.zero_()
-        elif isinstance(module, nn.Embedding):
-            module.weight.data.normal_(mean=0.0, std=self.model_config.initializer_range)
-            if module.padding_idx is not None:
-                module.weight.data[module.padding_idx].zero_()
-        elif isinstance(module, nn.LayerNorm):
-            module.bias.data.zero_()
-            module.weight.data.fill_(1.0)
 
-    def feature(self, inputs):
-        """
-        This method makes a forward pass through the model, get the last hidden state (embedding)
-        and pass it through the MeanPooling layer.
-        """
-        outputs            = self.model(**inputs)
-        last_hidden_states = outputs[0]
-        feature            = self.pool(last_hidden_states, inputs['attention_mask'])
-        return feature
+class AESModel(DebertaV2PreTrainedModel):
+    def __init__(self, config):
+        super().__init__(config)
+        self.deberta    = DebertaV2Model(config)
+        self.num_labels = config.num_labels
+        self.pooler     = MeanPooling()
+        self.classifier = nn.Linear(config.hidden_size, self.num_labels)
+        self.post_init()
 
-    def forward(self, inputs):
-        """
-        This method makes a forward pass through the model, the MeanPooling layer and finally
-        then through the Linear layer to get a regression value.
-        """
-        feature = self.feature(inputs)
-        output  = self.fc(feature)
-        return output
+    def forward(
+        self,
+        input_ids            = None,
+        attention_mask       = None,
+        labels               = None,
+        output_hidden_states = None,
+    ):
+        outputs = self.deberta(
+            input_ids,
+            attention_mask       = attention_mask,
+            output_hidden_states = output_hidden_states,
+        )
 
+        last_hidden_state = outputs[0]
+        pooled_output     = self.pooler(last_hidden_state, attention_mask)
+        logits            = self.classifier(pooled_output)
+
+        loss = None
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+
+        return SequenceClassifierOutput(
+            loss=loss, logits=logits, hidden_states=outputs.hidden_states
+        )
 
 def get_model(config):
 
-    tokenizer  = AutoTokenizer.from_pretrained(config.model_id)
-    model      = CustomModel(config=config, pretrained=True)
+    tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
+    model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
+    model        = AESModel(model_config)
 
     return tokenizer, model
 
@@ -215,7 +204,6 @@ def main(config):
     else:
         train_df          = dataset_df[dataset_df["fold"] != config.fold]
         eval_df           = dataset_df[dataset_df["fold"] == config.fold]
-
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = prepare_dataset(config, eval_df)
 
@@ -227,7 +215,6 @@ def main(config):
         eval_dataset      = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 
     data_collator     = DataCollatorWithPadding(tokenizer=tokenizer)
-
     args              = TrainingArguments(output_dir=out_dir, **config.training_args)
 
     if config.full_fit:
