@@ -38,35 +38,19 @@ class MeanPooling(nn.Module):
         mean_embeddings     = sum_embeddings / sum_mask
         return mean_embeddings
 
-
 class CustomModel(nn.Module):
-    def __init__(self, cfg, config_path=None, pretrained=False):
+    def __init__(self, config=None, pretrained=False):
         super().__init__()
-        self.cfg = cfg
-        # Load config by inferencing it from the model name.
-        if config_path is None:
-            self.config                              = AutoConfig.from_pretrained(cfg.model_id, output_hidden_states=True)
-            self.config.hidden_dropout               = 0.
-            self.config.hidden_dropout_prob          = 0.
-            self.config.attention_dropout            = 0.
-            self.config.attention_probs_dropout_prob = 0.
-        # Load config from a file.
-        else:
-            self.config = torch.load(config_path)
 
         if pretrained:
-            self.model = AutoModel.from_pretrained(cfg.MODEL, config=self.config)
+            model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
+            model        = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
+            self.pool    = MeanPooling()
+            self.fc      = nn.Linear(self.config.hidden_size, config.NUM_CLASSES)
+            self._init_weights(self.fc)
         else:
-            self.model = AutoModel.from_pretrained(self.config)
-
-        if self.cfg.GRADIENT_CHECKPOINTING:
-            self.model.gradient_checkpointing_enable()
-
-        # Add MeanPooling and Linear head at the end to transform the Model into a RegressionModel
-        self.pool = MeanPooling()
-        self.fc   = nn.Linear(self.config.hidden_size, config.NUM_CLASSES)
-        self._init_weights(self.fc)
-
+            print("Loading model for inference.....")
+            
     def _init_weights(self, module):
         """
         This method initializes weights for different types of layers. The type of layers
@@ -102,6 +86,14 @@ class CustomModel(nn.Module):
         feature = self.feature(inputs)
         output  = self.fc(feature)
         return output
+
+
+def get_model(config):
+
+    tokenizer  = AutoTokenizer.from_pretrained(config.model_id)
+    model      = CustomModel(config=config, pretrained=True)
+
+    return tokenizer, model
 
 def prepare_dataset(config, dataset_df):
 
