@@ -34,7 +34,6 @@ from transformers import (
 
 warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 
-
 load_dotenv()
 
 
@@ -50,7 +49,6 @@ class MeanPooling(nn.Module):
         mean_embeddings     = sum_embeddings / sum_mask
         return mean_embeddings
 
-
 class AESModel(DebertaV2PreTrainedModel):
     def __init__(self, user_config = None, model_config=None):
         super().__init__(model_config)
@@ -65,31 +63,18 @@ class AESModel(DebertaV2PreTrainedModel):
         self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
 
-    def forward(
-        self,
-        input_ids            = None,
-        attention_mask       = None,
-        labels               = None,
-        output_hidden_states = None,
-    ):
-        outputs = self.deberta(
-            input_ids,
-            attention_mask       = attention_mask,
-            output_hidden_states = output_hidden_states,
-        )
-
+    def forward(self, input_ids=None, attention_mask=None, labels=None, output_hidden_states=None):
+        outputs           = self.deberta(input_ids, attention_mask = attention_mask, output_hidden_states = output_hidden_states)
         last_hidden_state = outputs[0]
-        pooled_output     = self.pooler(last_hidden_state, attention_mask)
-        logits            = self.classifier(pooled_output)
+        #pooled_output     = self.pooler(last_hidden_state, attention_mask)
+        logits            = self.classifier(last_hidden_state)
 
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss()
             loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
-        return SequenceClassifierOutput(
-            loss=loss, logits=logits, hidden_states=outputs.hidden_states
-        )
+        return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
 
 def get_model(config):
 
