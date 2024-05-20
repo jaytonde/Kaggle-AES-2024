@@ -60,6 +60,7 @@ class AESModel(DebertaV2PreTrainedModel):
                 p.requires_grad = False
 
         self.pooler     = MeanPooling()
+        print(f"hidden size of the model : {model_config.hidden_size}")
         self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
 
