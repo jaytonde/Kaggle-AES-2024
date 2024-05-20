@@ -74,7 +74,7 @@ class AESModel(DebertaV2PreTrainedModel):
         #pooled_output     = self.pooler(last_hidden_state, attention_mask)
         logits            = self.classifier(last_hidden_state)
 
-        print(f"Logits : {logits}")
+        print(f"Shape of logits : {logits.shape}")
         loss = None
         if labels is not None:
             loss_fct = CrossEntropyLoss()
