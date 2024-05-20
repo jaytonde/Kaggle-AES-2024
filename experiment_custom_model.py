@@ -78,6 +78,9 @@ class AESModel(DebertaV2PreTrainedModel):
         if labels is not None:
             print("Calculating the loss")
             loss_fct = CrossEntropyLoss()
+
+            print(f"check 1 : {labels.view(-1)}")
+            print(f"check 2 : {logits.view(-1, self.num_labels)}")
             loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
