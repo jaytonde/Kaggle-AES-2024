@@ -67,7 +67,6 @@ class AESModel(DebertaV2PreTrainedModel):
     def forward(self, input_ids=None, attention_mask=None, labels=None, output_hidden_states=None):
         outputs           = self.deberta(input_ids, attention_mask = attention_mask, output_hidden_states = output_hidden_states)
         print(f"Type of the output from pretrained DeBERTa model while training:{type(outputs)} having length : {len(outputs)}")
-        print(f"first element  : {outputs[0]}")
         print(f"shape of first element  : {outputs[0].shape}")
 
         last_hidden_state = outputs[0]
