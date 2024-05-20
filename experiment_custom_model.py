@@ -67,8 +67,6 @@ class AESModel(DebertaV2PreTrainedModel):
         outputs           = self.deberta(input_ids, attention_mask = attention_mask, output_hidden_states = output_hidden_states)
         print(f"Type of the output from pretrained DeBERTa model while training:{type(outputs)} having length : {len(outputs)}")
         print(f"print first element  : {outputs[0]}")
-        print(f"print second element : {outputs[1]}")
-        print(f"print third element  : {outputs[2]}")
 
         last_hidden_state = outputs[0]
         #pooled_output     = self.pooler(last_hidden_state, attention_mask)
