@@ -60,27 +60,18 @@ class AESModel(DebertaV2PreTrainedModel):
                 p.requires_grad = False
 
         self.pooler     = MeanPooling()
-        print(f"hidden size of the model : {model_config.hidden_size}")
         self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
 
     def forward(self, input_ids=None, attention_mask=None, labels=None, output_hidden_states=None):
         outputs           = self.deberta(input_ids, attention_mask = attention_mask, output_hidden_states = output_hidden_states)
-        print(f"Type of the output from pretrained DeBERTa model while training:{type(outputs)} having length : {len(outputs)}")
-        print(f"shape of first element  : {outputs[0].shape}")
-
         last_hidden_state = outputs[0]
-        #pooled_output     = self.pooler(last_hidden_state, attention_mask)
-        logits            = self.classifier(last_hidden_state)
+        pooled_output     = self.pooler(last_hidden_state, attention_mask)
+        logits            = self.classifier(pooled_output)
 
-        print(f"Shape of logits : {logits.shape}")
         loss = None
         if labels is not None:
-            print("Calculating the loss")
             loss_fct = CrossEntropyLoss()
-
-            print(f"check 1 : {labels.view(-1)}")
-            print(f"check 2 : {logits.view(-1, self.num_labels)}")
             loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
