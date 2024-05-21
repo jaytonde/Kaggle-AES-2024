@@ -124,15 +124,15 @@ def push_to_huggingface(config, out_dir):
         )
     
     api.upload_file(
-        path_or_fileobj="experiment.py",
+        path_or_fileobj="experiment_custom_model.py",
         path_in_repo=path_in_repo,
-        repo_id=config.HUGGINGFACE_REPO,
+        repo_id=repo_id,
         repo_type="model",
         )
     api.upload_file(
         path_or_fileobj="config.yaml",
         path_in_repo=path_in_repo,
-        repo_id=config.HUGGINGFACE_REPO,
+        repo_id=repo_id,
         repo_type="model",
         )
 
