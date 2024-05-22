@@ -30,6 +30,6 @@ training_args :
   lr_scheduler_type           : 'linear'
   logging_steps               : 100,
   optim                       : 'adamw_torch',
-  logging_first_step          : True,
+  logging_first_step          : True
   # gradient_accumulation_steps : 2,
   # gradient_checkpointing      : True
