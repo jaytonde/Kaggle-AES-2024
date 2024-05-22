@@ -58,6 +58,7 @@ def get_model(config):
 def prepare_dataset(config, dataset_df):
 
     dataset_df['score'] = dataset_df['score'] - 1
+    dataset_df["score"] = dataset_df["score"].astype('float32')
     dataset_df          = dataset_df.rename(columns={'score':'label'})
     dataset_obj         = Dataset.from_pandas(dataset_df)
 
