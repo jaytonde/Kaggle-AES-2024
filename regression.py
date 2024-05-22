@@ -93,6 +93,9 @@ def push_to_huggingface(config, out_dir):
         api.upload_folder(
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
+
+    print(f"model and tokenizer is pushed to hub. Now pushing experiment.py and config.yaml")
+    print(f"Path in repo : {path_in_repo}")
     
     api.upload_file(
         path_or_fileobj="experiment_custom_model.py",
