@@ -6,6 +6,7 @@ import warnings
 import numpy as np
 import pandas as pd
 import torch.nn as nn
+import matplotlib.pyplot as plt
 from datetime import datetime
 from datasets import Dataset
 from torch.nn import Parameter, CrossEntropyLoss
@@ -15,6 +16,7 @@ from omegaconf import OmegaConf
 import huggingface_hub as hf_hub
 from huggingface_hub import HfApi
 from huggingface_hub import login
+from tokenizers import AddedToken
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers.modeling_outputs import SequenceClassifierOutput
@@ -79,7 +81,15 @@ class AESModel(DebertaV2PreTrainedModel):
 def get_model(config):
 
     tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
-    model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
+    tokenizer.add_tokens([AddedToken("\n", normalized=False)])
+    tokenizer.add_tokens([AddedToken(" "*2, normalized=False)])
+
+    model_config = AutoConfig.from_pretrained(config.model_id)
+    
+    model_config.attention_probs_dropout_prob = 0.0 
+    model_config.hidden_dropout_prob          = 0.0 
+    model_config.num_labels                   = 1 
+
     model        = AESModel(user_config = config, model_config=model_config)
 
     return tokenizer, model
@@ -94,8 +104,8 @@ def prepare_dataset(config, dataset_df):
 
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
-    qwk                 = cohen_kappa_score(labels, predictions.argmax(-1), weights="quadratic")
-    results             = {"qwk": qwk}
+    qwk                 = cohen_kappa_score(labels, predictions.clip(0,5).round(0), weights='quadratic')
+    results             = {'qwk': qwk}
     return results
 
 def tokenize_function(example,tokenizer,truncation,max_length):
@@ -140,17 +150,26 @@ def push_to_huggingface(config, out_dir):
 
 def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
-    logits, _, _       = trainer.predict(eval_dataset)
-    predictions        = logits.argmax(-1) + 1
-    eval_df["pred"]   = predictions
+    try:
+        predictions_thre   = trainer.predict(eval_dataset).predictions
+        predictions        = predictions_thre.round(0) + 1
+        eval_df["pred"]    = predictions
 
-    logits_df          = pd.DataFrame(logits, columns=[f"pred_{i}" for i in range(1, 7)])
-    result_df          = pd.concat([eval_df, logits_df], axis=1)
+        logits_df              = pd.DataFrame()
+        logits_df['pred_thre'] = predictions_thre
+        result_df              = pd.concat([eval_df, logits_df], axis=1)
 
-    file_path          = out_dir + '/' +f"fold_{config.fold}_oof.csv"
-    result_df.to_csv(file_path, index=False)
+        file_path          = out_dir + '/' +f"fold_{config.fold}_oof.csv"
+        result_df.to_csv(file_path, index=False)
 
-    print(f"OOF is saved at : {file_path}")
+        print(f"OOF is saved at : {file_path}")
+        
+        cm                 = confusion_matrix(eval_df['score'], eval_df["pred"], labels=[x for x in range(1,7)])
+        draw_cm            = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[x for x in range(1,7)])
+        draw_cm.plot()
+        plt.show()
+    except Exception as e:
+        print(f"Error while doing inference : {e}")
 
 def main(config):
 
@@ -210,7 +229,6 @@ def main(config):
     tokenizer, model  = get_model(config)
 
     train_dataset     = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
-
     if not config.full_fit:
         eval_dataset      = eval_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 

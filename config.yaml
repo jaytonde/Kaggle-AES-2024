@@ -27,7 +27,9 @@ training_args :
   push_to_hub                 : False
   warmup_ratio                : 0.1
   fp16                        : True
-  lr_scheduler_type           : 'cosine'
-  logging_steps               : 100
+  lr_scheduler_type           : 'linear'
+  logging_steps               : 100,
+  optim                       : 'adamw_torch',
+  logging_first_step          : True,
   # gradient_accumulation_steps : 2,
   # gradient_checkpointing      : True
