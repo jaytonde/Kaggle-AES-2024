@@ -116,6 +116,7 @@ def push_to_huggingface(config, out_dir):
 def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
     try:
+        print(f"Starting with inference on validation data")
         predictions_thre   = trainer.predict(eval_dataset).predictions
         predictions        = predictions_thre.round(0) + 1
         eval_df["pred"]    = predictions
@@ -133,6 +134,8 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
         draw_cm            = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=[x for x in range(1,7)])
         draw_cm.plot()
         plt.show()
+
+        print(f"Completed with inference on validation data")
     except Exception as e:
         print(f"Error while doing inference : {e}")
 
