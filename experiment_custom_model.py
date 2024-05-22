@@ -157,6 +157,9 @@ def main(config):
 
     start_time = datetime.now()
 
+    if config.debug:
+        print(f"Debugging mode is on.....")
+        
     if config.full_fit:
         print(f"Running experiment in full_fit mode.....")
         out_dir = os.path.join(config.output_dir,f"full_fit")
