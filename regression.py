@@ -94,21 +94,23 @@ def push_to_huggingface(config, out_dir):
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
     
-    print(f"training file path : {os.path.join(f"../"+out_dir,config.train_code_file)}")
+    root_dir = f"../"+out_dir
+    print(f"training file path : {os.path.join(root_dir, config.train_code_file)}")
     api.upload_file(
-        path_or_fileobj=os.path.join(f"../"+out_dir,config.train_code_file),
+        path_or_fileobj=os.path.join(root_dir, config.train_code_file),
         path_in_repo="experiment.py",
         repo_id=repo_id,
         repo_type="model",
         )
     api.upload_file(
-        path_or_fileobj=os.path.join(f"../"+out_dir,"config.yaml"),
+        path_or_fileobj=os.path.join(root_dir ,"config.yaml"),
         path_in_repo="config.yaml",
         repo_id=repo_id,
         repo_type="model",
         )
 
     print(f"All output folder is push to huggingface repo for experiment : {config.experiment_name}")
+
 
 def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
