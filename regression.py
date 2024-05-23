@@ -97,16 +97,15 @@ def push_to_huggingface(config, out_dir):
         )
     
     print(f"Current working dir : {os.getcwd()}")
-    root_dir = f"../"
-    print(f"training file path : {os.path.join(root_dir, config.train_code_file)}")
+
     api.upload_file(
-        path_or_fileobj=os.path.join(root_dir, config.train_code_file),
+        path_or_fileobj=config.train_code_file,
         path_in_repo="experiment.py",
         repo_id=repo_id,
         repo_type="model",
         )
     api.upload_file(
-        path_or_fileobj=os.path.join(root_dir ,"config.yaml"),
+        path_or_fileobj="config.yaml,
         path_in_repo="config.yaml",
         repo_id=repo_id,
         repo_type="model",
