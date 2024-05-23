@@ -17,6 +17,7 @@ import huggingface_hub as hf_hub
 from huggingface_hub import HfApi
 from huggingface_hub import login
 from tokenizers import AddedToken
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers.modeling_outputs import SequenceClassifierOutput
@@ -95,6 +96,7 @@ def push_to_huggingface(config, out_dir):
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
     
+    print(f"Current working dir : {os.getcwd()}")
     root_dir = f"../"
     print(f"training file path : {os.path.join(root_dir, config.train_code_file)}")
     api.upload_file(
