@@ -95,7 +95,7 @@ def push_to_huggingface(config, out_dir):
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
     
-    root_dir = f"../"+out_dir
+    root_dir = f"../"
     print(f"training file path : {os.path.join(root_dir, config.train_code_file)}")
     api.upload_file(
         path_or_fileobj=os.path.join(root_dir, config.train_code_file),
