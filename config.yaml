@@ -4,7 +4,7 @@ data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "microsoft/deberta-v3-base"
+model_id             : "microsoft/deberta-v3-xsmall"
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
