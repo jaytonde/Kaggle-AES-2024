@@ -1,7 +1,7 @@
 experiment_name      : "AES-EXP-17"
 training_filename    : "final_train.csv"
-data_dir             : "./input/"
-artifacts_dir        : "./output/"
+data_dir             : "./input"
+artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
 model_id             : "microsoft/deberta-v3-base"
