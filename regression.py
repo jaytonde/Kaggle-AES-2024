@@ -175,8 +175,8 @@ def main(config):
     dataset_df        = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
 
     if config.debug:
-        train_df          = dataset_df[0:100]
-        eval_df           = dataset_df[101:50]
+        train_df          = dataset_df[0:1000]
+        eval_df           = dataset_df[1001:2050]
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = prepare_dataset(config, eval_df)
     else:    
