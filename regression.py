@@ -206,6 +206,7 @@ def main(config):
                                         model           = model,
                                         args            = args,
                                         train_dataset   = train_dataset,
+                                        eval_dataset    = train_dataset,
                                         data_collator   = data_collator,
                                         compute_metrics = compute_metrics,
                                     )

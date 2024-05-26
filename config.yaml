@@ -33,5 +33,7 @@ training_args :
   logging_steps               : 100
   optim                       : 'adamw_torch'
   logging_first_step          : True
+  metric_for_best_model       : 'qwk'
+  
   # gradient_accumulation_steps : 2,
   # gradient_checkpointing      : True
