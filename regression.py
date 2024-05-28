@@ -223,7 +223,7 @@ def main(config):
     tokenizer.save_pretrained(out_dir)
 
     if config.full_fit:
-        inference(config, trainer, train_dataset, train_df, out_dir)
+        print("No inference for full fit")
     else:
         inference(config, trainer, eval_dataset, eval_df, out_dir)
 

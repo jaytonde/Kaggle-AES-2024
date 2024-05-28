@@ -4,11 +4,11 @@ data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "microsoft/deberta-v3-base"
+model_id             : "microsoft/deberta-v3-large"
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "Added mean pooling and freezed first 4 layers"
+notes                : "regression deberta large varient"
 truncation           : True
 max_length           : 1024
 seed                 : 2024
@@ -24,7 +24,7 @@ training_args :
   per_device_eval_batch_size  : 8
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'no'
+  evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.1
