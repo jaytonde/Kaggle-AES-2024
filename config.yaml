@@ -24,7 +24,7 @@ training_args :
   per_device_eval_batch_size  : 8
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'epoch'
+  evaluation_strategy         : 'no'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.1
@@ -33,7 +33,6 @@ training_args :
   logging_steps               : 100
   optim                       : 'adamw_torch'
   logging_first_step          : True
-  metric_for_best_model       : 'qwk'
   
   # gradient_accumulation_steps : 2,
   # gradient_checkpointing      : True
