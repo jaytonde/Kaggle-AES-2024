@@ -67,6 +67,8 @@ def prepare_dataset(config, dataset_df):
 
 def compute_metrics(eval_pred):
     predictions, labels = eval_pred
+    print(f"shape of preds : {predictions}")
+    print(f"shape of labels : {labels}")
     qwk                 = cohen_kappa_score(labels, predictions.clip(0,5).round(0), weights='quadratic')
     results             = {'qwk': qwk}
     return results
