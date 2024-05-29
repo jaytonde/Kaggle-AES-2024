@@ -68,15 +68,17 @@ def push_to_huggingface(config, out_dir):
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
     
+    print(f"Current working dir : {os.getcwd()}")
+
     api.upload_file(
-        path_or_fileobj="experiment.py",
-        path_in_repo=path_in_repo,
+        path_or_fileobj=config.train_code_file,
+        path_in_repo="experiment.py",
         repo_id=repo_id,
         repo_type="model",
         )
     api.upload_file(
         path_or_fileobj="config.yaml",
-        path_in_repo=path_in_repo,
+        path_in_repo="config.yaml",
         repo_id=repo_id,
         repo_type="model",
         )
@@ -105,18 +107,10 @@ def main(config):
 
     start_time = datetime.now()
 
-    try:
-        from discordwebhook import Discord
-        discord        = Discord(url=os.environ["DISCORD_WEBHOOK"])
-        notify_discord = True
-    except Exception as e:
-        print(f"will not able to log to discord cause of error : {e}")
-        notify_discord = False
+    print(f"Experiment for model : {config.model_id}")
 
-    if notify_discord:
-        discord.post(
-            content=f"🚀 Starting experiment {config.experiment_name} at time : {start_time}"
-        )
+    if config.debug:
+        print(f"Debugging mode is on.....")
 
     if config.full_fit:
         print(f"Running experiment in full_fit mode.....")
@@ -146,16 +140,21 @@ def main(config):
 
     dataset_df        = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
 
-    if config.full_fit:
-        train_df          = dataset_df
-        train_dataset     = prepare_dataset(config, train_df)
-        eval_dataset      = None
-    else:
-        train_df          = dataset_df[dataset_df["fold"] != config.fold]
-        eval_df           = dataset_df[dataset_df["fold"] == config.fold]
-
+    if config.debug:
+        train_df          = dataset_df[0:1000]
+        eval_df           = dataset_df[1001:2050]
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = prepare_dataset(config, eval_df)
+    else:    
+        if config.full_fit:
+            train_df          = dataset_df
+            train_dataset     = prepare_dataset(config, train_df)
+            eval_dataset      = None
+        else:
+            train_df          = dataset_df[dataset_df["fold"] != config.fold]
+            eval_df           = dataset_df[dataset_df["fold"] == config.fold]
+            train_dataset     = prepare_dataset(config, train_df)
+            eval_dataset      = prepare_dataset(config, eval_df)
 
     tokenizer, model  = get_model(config)
 
@@ -190,17 +189,11 @@ def main(config):
     tokenizer.save_pretrained(out_dir)
 
     if config.full_fit:
-        inference(config, trainer, train_dataset, train_df, out_dir)
+        print("No inference for full fit")
     else:
         inference(config, trainer, eval_dataset, eval_df, out_dir)
 
     push_to_huggingface(config, out_dir)
-
-
-    end_time = datetime.now()
-    finish_str = f"🎉 Experiment {cfg.experiment_name} completed at time: {end_time}. Total time taken : {(end_time-start_time)/60} minutes."
-    if notify_discord:
-        discord.post(content=finish_str)
     
     print(f"Total time taken by experiment {(end_time-start_time)/60} minutes.")
     print(f"This is the end.....")
