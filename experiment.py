@@ -195,6 +195,7 @@ def main(config):
 
     push_to_huggingface(config, out_dir)
     
+    end_time = datetime.now()
     print(f"Total time taken by experiment {(end_time-start_time)/60} minutes.")
     print(f"This is the end.....")
 
