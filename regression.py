@@ -193,6 +193,8 @@ def main(config):
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = prepare_dataset(config, eval_df)
 
+            print(f"Dataset shapes : train shape -> {train_df.shape}, eval shape -> {eval_df.shape}")
+
     tokenizer, model  = get_model(config)
 
     train_dataset     = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
