@@ -52,8 +52,8 @@ def get_model(config):
     model_config.hidden_dropout_prob          = 0.0 
     model_config.num_labels                   = 1 
 
-    model           = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
-
+    model = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
+    model.resize_token_embeddings(len(tokenizer))
     return tokenizer, model
 
 def prepare_dataset(config, dataset_df):
