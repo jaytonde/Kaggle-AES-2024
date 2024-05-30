@@ -4,11 +4,11 @@ data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "FacebookAI/xlm-roberta-large"
+model_id             : "FacebookAI/roberta-base"
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "regression roberta large varient with sequnce length 512"
+notes                : "regression roberta base varient with sequnce length 512"
 truncation           : True
 max_length           : 512
 seed                 : 2024
