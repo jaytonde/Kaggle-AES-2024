@@ -107,8 +107,8 @@ def push_to_huggingface(config, out_dir):
         repo_type="model",
         )
     api.upload_file(
-        path_or_fileobj="config.yaml",
-        path_in_repo="config.yaml",
+        path_or_fileobj="config_roberta.yaml",
+        path_in_repo="config_roberta.yaml",
         repo_id=repo_id,
         repo_type="model",
         )
