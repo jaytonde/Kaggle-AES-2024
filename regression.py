@@ -203,6 +203,7 @@ def main(config):
     data_collator     = DataCollatorWithPadding(tokenizer=tokenizer)
     args              = TrainingArguments(output_dir=out_dir, **config.training_args)
 
+    print(f"Training started.....")
     if config.full_fit:
         trainer           = Trainer (
                                         model           = model,
@@ -223,6 +224,7 @@ def main(config):
     trainer.train()
     trainer.save_model(out_dir)
     tokenizer.save_pretrained(out_dir)
+    print(f"Training compeleted.....")
 
     if config.full_fit:
         print("No inference for full fit")
