@@ -1,14 +1,14 @@
-experiment_name      : "AES-EXP-21"
+experiment_name      : "AES-EXP-25"
 training_filename    : "final_train.csv"
 data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "google/bigbird-roberta-base"
+model_id             : "google/bigbird-roberta-large"
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "classification big bird base varient with sequnce length 1024"
+notes                : "classification big bird large varient with sequnce length 1024"
 truncation           : True
 max_length           : 1024
 seed                 : 2024
@@ -20,11 +20,11 @@ train_code_file      : "experiment.py"
 
 training_args :
   learning_rate               : 1e-5
-  per_device_train_batch_size : 4
-  per_device_eval_batch_size  : 8
+  per_device_train_batch_size : 2
+  per_device_eval_batch_size  : 4
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'no'
+  evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.0
