@@ -125,15 +125,16 @@ def push_to_huggingface(config, out_dir):
             folder_path=out_dir, repo_id=repo_id, path_in_repo=path_in_repo
         )
     
-    print(f"training file path : {os.path.join(f"../"+out_dir,config.train_code_file)}")
+    print(f"Current working dir : {os.getcwd()}")
+
     api.upload_file(
-        path_or_fileobj=os.path.join(f"../"+out_dir,config.train_code_file),
+        path_or_fileobj=config.train_code_file,
         path_in_repo="experiment.py",
         repo_id=repo_id,
         repo_type="model",
         )
     api.upload_file(
-        path_or_fileobj=os.path.join(f"../"+out_dir,"config.yaml"),
+        path_or_fileobj=config.config_file,
         path_in_repo="config.yaml",
         repo_id=repo_id,
         repo_type="model",
@@ -158,6 +159,7 @@ def inference(config, trainer, eval_dataset, eval_df, out_dir):
 def main(config):
 
     start_time = datetime.now()
+    print(f"Experiment for model : {config.model_id}")
 
     if config.debug:
         print(f"Debugging mode is on.....")
@@ -236,7 +238,7 @@ def main(config):
     tokenizer.save_pretrained(out_dir)
 
     if config.full_fit:
-        inference(config, trainer, train_dataset, train_df, out_dir)
+        print("No inference for full fit")
     else:
         inference(config, trainer, eval_dataset, eval_df, out_dir)
 

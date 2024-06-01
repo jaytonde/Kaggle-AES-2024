@@ -17,7 +17,8 @@ full_fit             : False
 notify_discord       : True
 num_freez_layers     : 4
 debug                : False
-train_code_file      : "regression.py"
+train_code_file      : "experiment_custom_model.py"
+config_file          : "config.yaml"
 dist_matrix          : [[0, 1, 2, 3, 4, 5], [1, 0, 1, 2, 3, 4], [2, 1, 0, 1, 2, 3], [3, 2, 1, 0, 1, 2], [4, 3, 2, 1, 0, 1],[5 ,4, 3, 2, 1, 0]]
 
 training_args :
