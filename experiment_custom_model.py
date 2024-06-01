@@ -83,7 +83,7 @@ def compute_loss(labels, num_classes, dist_matrix, logits):
 
     distances        = [[float(dist_matrix[true_labels[j][i]][label_ids[j][i]]) for i in range(num_classes)] for j in range(len(labels))]
     distances_tensor = torch.tensor(distances,device='cuda:0', requires_grad=True)
-    
+
     err              = -torch.log(1-probas)*abs(distances_tensor)**2
     loss             = torch.sum(err,axis=1).mean()
     return loss
@@ -172,6 +172,7 @@ def main(config):
     print(f"Experiment for model : {config.model_id}")
 
     if config.debug:
+        config.wandb_log = False
         print(f"Debugging mode is on.....")
         
     if config.full_fit:
