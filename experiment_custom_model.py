@@ -53,10 +53,11 @@ class MeanPooling(nn.Module):
 class AESModel(DebertaV2PreTrainedModel):
     def __init__(self, user_config = None, model_config=None):
         super().__init__(model_config)
-        self.deberta    = DebertaV2Model(model_config)
-        self.num_labels = model_config.num_labels
-        self.pooler     = MeanPooling()
-        self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
+        self.user_config = user_config
+        self.deberta     = DebertaV2Model(model_config)
+        self.num_labels  = model_config.num_labels
+        self.pooler      = MeanPooling()
+        self.classifier  = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
 
     def forward(self, input_ids=None, attention_mask=None, labels=None, output_hidden_states=None):
