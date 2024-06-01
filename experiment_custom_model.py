@@ -65,7 +65,7 @@ class AESModel(DebertaV2PreTrainedModel):
         last_hidden_state = outputs[0]
         pooled_output     = self.pooler(last_hidden_state, attention_mask)
         logits            = self.classifier(pooled_output)
-        loss              = compute_loss(user_config.labels ,user_config.num_labels, user_config.dist_matrix, logits)
+        loss              = compute_loss(self.user_config.labels ,self.user_config.num_labels, self.user_config.dist_matrix, logits)
 
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
 
