@@ -65,17 +65,17 @@ class AESModel(DebertaV2PreTrainedModel):
         last_hidden_state = outputs[0]
         pooled_output     = self.pooler(last_hidden_state, attention_mask)
         logits            = self.classifier(pooled_output)
-        loss              = compute_loss(self.user_config.labels ,self.user_config.num_labels, self.user_config.dist_matrix, logits)
+        loss              = compute_loss(labels ,self.user_config.num_labels, self.user_config.dist_matrix, logits)
 
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
 
 def compute_loss(labels, num_classes, dist_matrix, logits):
-    print(f"labels : {labels}")
-    print(f"num_classes : {num_classes}")
-    print(f"dist_matrix : {dist_matrix}")
-    print(f"logits: {logits}")
+    print(f"labels        : {labels}")
+    print(f"num_classes   : {num_classes}")
+    print(f"dist_matrix   : {dist_matrix}")
+    print(f"logits        : {logits}")
     probas           = F.softmax(logits,dim=1)
-    print(f"after softmax: {probas}")
+    print(f"after softmax : {probas}")
 
 
     true_labels      = [num_classes*[labels[k].item()] for k in range(len(labels))]
