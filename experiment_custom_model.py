@@ -70,11 +70,20 @@ class AESModel(DebertaV2PreTrainedModel):
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
 
 def compute_loss(labels, num_classes, dist_matrix, logits):
+    print(f"labels : {labels}")
+    print(f"num_classes : {num_classes}")
+    print(f"dist_matrix : {dist_matrix}")
+    print(f"logits: {logits}")
     probas           = F.softmax(logits,dim=1)
+    print(f"after softmax: {probas}")
+
+
     true_labels      = [num_classes*[labels[k].item()] for k in range(len(labels))]
     label_ids        = len(labels)*[[k for k in range(num_classes)]]
+
     distances        = [[float(dist_matrix[true_labels[j][i]][label_ids[j][i]]) for i in range(num_classes)] for j in range(len(labels))]
     distances_tensor = torch.tensor(distances,device='cuda:0', requires_grad=True)
+    
     err              = -torch.log(1-probas)*abs(distances_tensor)**2
     loss             = torch.sum(err,axis=1).mean()
     return loss
