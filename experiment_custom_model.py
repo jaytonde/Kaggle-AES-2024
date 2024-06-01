@@ -37,6 +37,7 @@ warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 load_dotenv()
 
 
+
 class MeanPooling(nn.Module):
     def __init__(self):
         super(MeanPooling, self).__init__()
@@ -54,11 +55,6 @@ class AESModel(DebertaV2PreTrainedModel):
         super().__init__(model_config)
         self.deberta    = DebertaV2Model(model_config)
         self.num_labels = model_config.num_labels
-
-        for i in range(0, user_config.num_freez_layers, 1):
-            for n,p in self.deberta.encoder.layer[i].named_parameters():
-                p.requires_grad = False
-
         self.pooler     = MeanPooling()
         self.classifier = nn.Linear(model_config.hidden_size, self.num_labels)
         self.post_init()
@@ -68,13 +64,19 @@ class AESModel(DebertaV2PreTrainedModel):
         last_hidden_state = outputs[0]
         pooled_output     = self.pooler(last_hidden_state, attention_mask)
         logits            = self.classifier(pooled_output)
-
-        loss = None
-        if labels is not None:
-            loss_fct = CrossEntropyLoss()
-            loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
+        loss              = compute_loss(user_config.labels ,user_config.num_labels, user_config.dist_matrix, logits)
 
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
+
+def compute_loss(labels, num_classes, dist_matrix, logits):
+    probas           = F.softmax(logits,dim=1)
+    true_labels      = [num_classes*[labels[k].item()] for k in range(len(labels))]
+    label_ids        = len(labels)*[[k for k in range(num_classes)]]
+    distances        = [[float(dist_matrix[true_labels[j][i]][label_ids[j][i]]) for i in range(num_classes)] for j in range(len(labels))]
+    distances_tensor = torch.tensor(distances,device='cuda:0', requires_grad=True)
+    err              = -torch.log(1-probas)*abs(distances_tensor)**2
+    loss             = torch.sum(err,axis=1).mean()
+    return loss
 
 def get_model(config):
 
