@@ -163,7 +163,6 @@ def main(config):
     print(f"Experiment for model : {config.model_id}")
 
     if config.debug:
-        config.wandb_log = False
         print(f"Debugging mode is on.....")
         
     if config.full_fit:
