@@ -70,6 +70,7 @@ class AESModel(DebertaV2PreTrainedModel):
         return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
 
 def compute_loss(labels, num_classes, dist_matrix, logits):
+    print(f"Regression logits: {logits}")
     probas           = F.softmax(logits,dim=1)
     true_labels      = [num_classes*[labels[k].item()] for k in range(len(labels))]
     label_ids        = len(labels)*[[k for k in range(num_classes)]]
@@ -83,7 +84,13 @@ def get_model(config):
 
     tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
     model_config = AutoConfig.from_pretrained(config.model_id, num_labels=config.num_labels)
+
+    model_config.attention_probs_dropout_prob = 0.0 
+    model_config.hidden_dropout_prob          = 0.0 
+    model_config.num_labels                   = 1 
+
     model        = AESModel(user_config = config, model_config=model_config)
+    model.resize_token_embeddings(len(tokenizer))
 
     return tokenizer, model
 

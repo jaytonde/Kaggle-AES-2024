@@ -9,7 +9,7 @@ labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "regression deberta large varient"
+notes                : "regression deberta base varient with ordinal loss"
 truncation           : True
 max_length           : 1024
 seed                 : 2024
