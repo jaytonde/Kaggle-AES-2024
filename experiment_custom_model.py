@@ -65,10 +65,16 @@ class AESModel(DebertaV2PreTrainedModel):
         last_hidden_state = outputs[0]
         pooled_output     = self.pooler(last_hidden_state, attention_mask)
         logits            = self.classifier(pooled_output)
-        loss              = compute_loss(labels ,self.user_config.num_labels, self.user_config.dist_matrix, logits)
 
-        return SequenceClassifierOutput(loss=loss, logits=logits, hidden_states=outputs.hidden_states)
+        loss = None
+        if labels is not None:
+            loss_fct = CrossEntropyLoss()
+            loss     = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
 
+        return SequenceClassifierOutput(
+            loss=loss, logits=logits, hidden_states=outputs.hidden_states
+        )
+        
 def compute_loss(labels, num_classes, dist_matrix, logits):
     print(f"Regression logits: {logits}")
     probas           = F.softmax(logits,dim=1)
