@@ -107,29 +107,25 @@ def push_to_huggingface(config, out_dir):
         repo_type="model",
         )
     api.upload_file(
-        path_or_fileobj="config_roberta.yaml",
-        path_in_repo="config_roberta.yaml",
+        path_or_fileobj=config.config_file,
+        path_in_repo="config.yaml",
         repo_id=repo_id,
         repo_type="model",
         )
 
     print(f"All output folder is push to huggingface repo for experiment : {config.experiment_name}")
 
-
 def inference(config, trainer, eval_dataset, eval_df, out_dir):
 
     try:
         print(f"Starting with inference on validation data")
-        predictions_thre   = trainer.predict(eval_dataset).predictions
-        predictions        = predictions_thre.round(0) + 1
-        eval_df["pred"]    = predictions
+        predictions_thre     = trainer.predict(eval_dataset).predictions
+        predictions          = predictions_thre.round(0) + 1
+        eval_df["pred"]      = predictions
+        eval_df['pred_thre'] = predictions_thre
 
-        logits_df              = pd.DataFrame()
-        logits_df['pred_thre'] = predictions_thre
-        result_df              = pd.concat([eval_df, logits_df], axis=1)
-
-        file_path          = out_dir + '/' +f"fold_{config.fold}_oof.csv"
-        result_df.to_csv(file_path, index=False)
+        file_path            = out_dir + '/' +f"fold_{config.fold}_oof.csv"
+        eval_df.to_csv(file_path, index=False)
 
         print(f"OOF is saved at : {file_path}")
         
