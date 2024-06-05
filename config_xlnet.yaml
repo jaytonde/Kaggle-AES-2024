@@ -1,0 +1,39 @@
+experiment_name      : "AES-EXP-30"
+training_filename    : "final_train.csv"
+data_dir             : "./input"
+artifacts_dir        : "./output"
+output_dir           : "${artifacts_dir}/${experiment_name}"
+fold                 : 0
+model_id             : "xlnet/xlnet-base-cased"
+num_labels           : 6
+wandb_log            : True
+wandb_project_name   : "AES"
+notes                : "regression xlnet base varient with sequnce length 1024"
+truncation           : True
+max_length           : 1024
+seed                 : 2024
+full_fit             : False
+notify_discord       : True
+num_freez_layers     : 4
+debug                : False
+train_code_file      : "regression.py"
+config_file          : "config_xlnet.yaml"
+
+training_args :
+  learning_rate               : 2e-5
+  per_device_train_batch_size : 2
+  per_device_eval_batch_size  : 4
+  num_train_epochs            : 1
+  weight_decay                : 0.01
+  evaluation_strategy         : 'epoch'
+  save_strategy               : 'no'
+  push_to_hub                 : False
+  warmup_ratio                : 0.0
+  fp16                        : True
+  lr_scheduler_type           : 'linear'
+  logging_steps               : 100 
+  optim                       : 'adamw_torch'
+  logging_first_step          : True
+  
+  # gradient_accumulation_steps : 2,
+  # gradient_checkpointing      : True
