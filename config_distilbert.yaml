@@ -10,7 +10,7 @@ wandb_log            : True
 wandb_project_name   : "AES"
 notes                : "regression xlnet base varient with sequnce length 1024"
 truncation           : True
-max_length           : 1024
+max_length           : 512
 seed                 : 2024
 full_fit             : False
 notify_discord       : True
