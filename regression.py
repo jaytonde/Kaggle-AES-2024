@@ -26,7 +26,6 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers import AutoModelForSequenceClassification
-stopwords = nltk.corpus.stopwords.words('english')
 
 from transformers import (
     AutoConfig,
