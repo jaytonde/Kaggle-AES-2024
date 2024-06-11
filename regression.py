@@ -233,7 +233,7 @@ def main(config):
                 )
 
     dataset_df              = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
-    dataset_df['full_text'] = dataset_df['full_text'].apply(preprocessor)
+    #dataset_df['full_text'] = dataset_df['full_text'].apply(preprocessor)
 
     if config.debug:
         train_df          = dataset_df[0:1000]

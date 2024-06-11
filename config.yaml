@@ -1,4 +1,4 @@
-experiment_name      : "AES-EXP-33"
+experiment_name      : "AES-EXP-32"
 training_filename    : "final_train.csv"
 data_dir             : "./input"
 artifacts_dir        : "./output"
@@ -9,7 +9,7 @@ labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "lr changes and data cleaning logic added"
+notes                : "lr changes and data max length increased"
 truncation           : True
 max_length           : 2048
 seed                 : 2024
@@ -27,7 +27,7 @@ training_args :
   per_device_eval_batch_size  : 4
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'epoch'
+  evaluation_strategy         : 'no'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.0
