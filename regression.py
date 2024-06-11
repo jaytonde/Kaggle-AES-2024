@@ -39,6 +39,13 @@ warnings.filterwarnings("ignore", category=UserWarning, module="transformers")
 
 load_dotenv()
 
+class CustomTrainer(Trainer):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def create_optimizer_and_scheduler(self, num_training_steps):
+        self.optimizer    = AdamW(self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay)
+        self.lr_scheduler = get_polynomial_decay_schedule_with_warmup(self.optimizer, 0, num_training_steps, power=2)
 
 def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s'):
     param_optimizer = list(model.named_parameters())
@@ -70,6 +77,8 @@ def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s')
             
             {'params': [p for n, p in model.named_parameters() if "model" not in n], 'lr':learning_rate},
         ]
+
+        return optimizer_parameters
 
 def get_model(config):
 
@@ -266,7 +275,6 @@ def main(config):
     
     print(f"Total time taken by experiment {(end_time-start_time)/60} minutes.")
     print(f"This is the end.....")
-
 
 if __name__ == "__main__":
     config_file_path = sys.argv.pop(1)
