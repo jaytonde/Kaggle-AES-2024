@@ -6,6 +6,9 @@ import warnings
 import numpy as np
 import pandas as pd
 import torch.nn as nn
+import nltk
+import string
+string.punctuation
 import matplotlib.pyplot as plt
 from datetime import datetime
 from datasets import Dataset
@@ -22,6 +25,7 @@ from sklearn.metrics import cohen_kappa_score
 from sklearn.model_selection import StratifiedKFold
 from transformers.modeling_outputs import SequenceClassifierOutput
 from transformers import AutoModelForSequenceClassification
+stopwords = nltk.corpus.stopwords.words('english')
 
 from transformers import (
     AutoConfig,
@@ -47,6 +51,24 @@ class CustomTrainer(Trainer):
         self.optimizer    = AdamW(self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay)
         self.lr_scheduler = get_polynomial_decay_schedule_with_warmup(self.optimizer, 0, num_training_steps, power=2)
 
+def remove_punctuation(text):
+    punctuationfree="".join([i for i in text if i not in string.punctuation])
+    return punctuationfree
+
+def remove_stopwords(text):
+    output= [i for i in text if i not in stopwords]
+    return output
+
+def clean_data(train_df):
+    
+    train_df['clean_full_text']= train_df['full_text'].apply(lambda x:remove_punctuation(x))
+    train_df['clean_full_text']= train_df['clean_full_text'].apply(lambda x: x.lower())
+    train_df['clean_full_text']= train_df['clean_full_text'].apply(lambda x:remove_stopwords(x))
+
+    train_df['full_text'] = train_df['clean_full_text']
+
+    return train_df
+    
 def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s'):
     param_optimizer = list(model.named_parameters())
     no_decay        = ["bias", "LayerNorm.bias", "LayerNorm.weight"]
@@ -221,11 +243,14 @@ def main(config):
     else:    
         if config.full_fit:
             train_df          = dataset_df
+            train_df          = clean_data(train_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = None
         else:
             train_df          = dataset_df[dataset_df["fold"] != config.fold]
+            train_df          = clean_data(train_df)
             eval_df           = dataset_df[dataset_df["fold"] == config.fold]
+            eval_df           = clean_data(eval_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = prepare_dataset(config, eval_df)
 
