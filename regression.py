@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 import wandb
 import torch
@@ -51,23 +52,22 @@ class CustomTrainer(Trainer):
         self.optimizer    = AdamW(self.model.parameters(), lr=self.args.learning_rate, weight_decay=self.args.weight_decay)
         self.lr_scheduler = get_polynomial_decay_schedule_with_warmup(self.optimizer, 0, num_training_steps, power=2)
 
-def remove_punctuation(text):
-    punctuationfree="".join([i for i in text if i not in string.punctuation])
-    return punctuationfree
+def removeHTML(text):
+    html = re.compile(r'<.*?>')
+    return html.sub(r' ',text)
 
-def remove_stopwords(text):
-    output= [i for i in text if i not in stopwords]
-    return output
+def text_cleaning(text):
+    text = re.sub(r"\.+", ".", text)
+    text = re.sub(r"\,+", ",", text)
+    text = text.replace("\'\'", '"')
+    text = text.replace("\\xa0", ' ')
+    text = text.strip()
+    return text
 
-def clean_data(train_df):
-    
-    train_df['clean_full_text']= train_df['full_text'].apply(lambda x:remove_punctuation(x))
-    train_df['clean_full_text']= train_df['clean_full_text'].apply(lambda x: x.lower())
-    train_df['clean_full_text']= train_df['clean_full_text'].apply(lambda x:remove_stopwords(x))
-
-    train_df['full_text'] = train_df['clean_full_text']
-
-    return train_df
+def preprocessor(text):
+    text = removeHTML(text)
+    text = text_cleaning(text)
+    return text
     
 def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s'):
     param_optimizer = list(model.named_parameters())
@@ -233,26 +233,22 @@ def main(config):
                         config  = OmegaConf.to_container(config, resolve=True)
                 )
 
-    dataset_df        = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
+    dataset_df              = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
+    dataset_df['full_text'] = dataset_df['full_text'].apply(preprocessor)
 
     if config.debug:
         train_df          = dataset_df[0:1000]
-        train_df          = clean_data(train_df)
         eval_df           = dataset_df[1001:2050]
-        eval_df           = clean_data(eval_df)
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = prepare_dataset(config, eval_df)
     else:    
         if config.full_fit:
             train_df          = dataset_df
-            #train_df          = clean_data(train_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = None
         else:
             train_df          = dataset_df[dataset_df["fold"] != config.fold]
-            #train_df          = clean_data(train_df)
             eval_df           = dataset_df[dataset_df["fold"] == config.fold]
-            #eval_df           = clean_data(eval_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = prepare_dataset(config, eval_df)
 
