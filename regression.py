@@ -237,22 +237,22 @@ def main(config):
 
     if config.debug:
         train_df          = dataset_df[0:1000]
-        train_df          = clean_data(train_df)
+        #train_df          = clean_data(train_df)
         eval_df           = dataset_df[1001:2050]
-        eval_df           = clean_data(eval_df)
+        #eval_df           = clean_data(eval_df)
         train_dataset     = prepare_dataset(config, train_df)
         eval_dataset      = prepare_dataset(config, eval_df)
     else:    
         if config.full_fit:
             train_df          = dataset_df
-            train_df          = clean_data(train_df)
+            #train_df          = clean_data(train_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = None
         else:
             train_df          = dataset_df[dataset_df["fold"] != config.fold]
-            train_df          = clean_data(train_df)
+            #train_df          = clean_data(train_df)
             eval_df           = dataset_df[dataset_df["fold"] == config.fold]
-            eval_df           = clean_data(eval_df)
+            #eval_df           = clean_data(eval_df)
             train_dataset     = prepare_dataset(config, train_df)
             eval_dataset      = prepare_dataset(config, eval_df)
 
