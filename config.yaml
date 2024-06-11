@@ -11,7 +11,7 @@ wandb_log            : True
 wandb_project_name   : "AES"
 notes                : "lr changes and data max length increased"
 truncation           : True
-max_length           : 2048
+max_length           : 4096
 seed                 : 2024
 full_fit             : False
 notify_discord       : True
@@ -27,7 +27,7 @@ training_args :
   per_device_eval_batch_size  : 4
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'no'
+  evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.0
