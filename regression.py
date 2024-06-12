@@ -64,10 +64,8 @@ def text_cleaning(text):
     return text
 
 def preprocessor(text):
-    print("Data cleaning started.....")
     text = removeHTML(text)
     text = text_cleaning(text)
-    print("Data cleaning completed.....")
     return text
     
 def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s'):
@@ -235,7 +233,10 @@ def main(config):
                 )
 
     dataset_df              = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
+
+    print("Data cleaning started.....")
     dataset_df['full_text'] = dataset_df['full_text'].apply(preprocessor)
+    print("Data cleaning completed.....")
 
     if config.debug:
         train_df          = dataset_df[0:1000]
