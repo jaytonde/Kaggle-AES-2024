@@ -64,8 +64,10 @@ def text_cleaning(text):
     return text
 
 def preprocessor(text):
+    print("Data cleaning started.....")
     text = removeHTML(text)
     text = text_cleaning(text)
+    print("Data cleaning completed.....")
     return text
     
 def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s'):
