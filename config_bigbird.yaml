@@ -10,7 +10,7 @@ wandb_log            : True
 wandb_project_name   : "AES"
 notes                : "regression big bird base varient with sequnce length 1024"
 truncation           : True
-max_length           : 2048
+max_length           : 6144
 seed                 : 2024
 full_fit             : False
 notify_discord       : True
@@ -25,12 +25,12 @@ training_args :
   per_device_eval_batch_size  : 4
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'no'
+  evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.0
   fp16                        : True
-  lr_scheduler_type           : 'linear'
+  lr_scheduler_type           : 'cosine'
   logging_steps               : 100 
   optim                       : 'adamw_torch'
   logging_first_step          : True
