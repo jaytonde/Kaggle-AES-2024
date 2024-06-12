@@ -9,7 +9,7 @@ labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "lr changes and data max length increased"
+notes                : "max length 4096 cleaning logic added"
 truncation           : True
 max_length           : 4096
 seed                 : 2024
