@@ -103,6 +103,7 @@ def get_optimizer_params(model, learning_rate = 0.0, weight_decay=0.0, type='s')
 
 def get_model(config):
 
+    print(f"model id : {config.model_id}")
     tokenizer    = AutoTokenizer.from_pretrained(config.model_id)
     tokenizer.add_tokens([AddedToken("\n", normalized=False)])
     tokenizer.add_tokens([AddedToken(" "*2, normalized=False)])
@@ -258,6 +259,7 @@ def main(config):
 
     tokenizer, model  = get_model(config)
 
+    print(f"max length : {config.max_length}")
     train_dataset     = train_dataset.map(tokenize_function, batched=True, fn_kwargs={'tokenizer':tokenizer,'truncation':config.truncation,'max_length':config.max_length})
 
     if not config.full_fit:
