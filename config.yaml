@@ -4,7 +4,7 @@ data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "microsoft/deberta-v3-base"
+model_id             : "microsoft/deberta-v3-large"
 labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
@@ -23,11 +23,11 @@ dist_matrix          : [[0, 1, 2, 3, 4, 5], [1, 0, 1, 2, 3, 4], [2, 1, 0, 1, 2, 
 
 training_args :
   learning_rate               : 2e-5
-  per_device_train_batch_size : 2
-  per_device_eval_batch_size  : 4
+  per_device_train_batch_size : 1
+  per_device_eval_batch_size  : 2
   num_train_epochs            : 1
   weight_decay                : 0.01
-  evaluation_strategy         : 'no'
+  evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
   push_to_hub                 : False
   warmup_ratio                : 0.0
