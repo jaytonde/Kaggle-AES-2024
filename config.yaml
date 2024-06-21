@@ -9,7 +9,7 @@ labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "max length 4096 cleaning logic added"
+notes                : "max length 2048 cleaning logic added"
 truncation           : True
 max_length           : 2048
 seed                 : 2024
@@ -22,10 +22,10 @@ config_file          : "config.yaml"
 dist_matrix          : [[0, 1, 2, 3, 4, 5], [1, 0, 1, 2, 3, 4], [2, 1, 0, 1, 2, 3], [3, 2, 1, 0, 1, 2], [4, 3, 2, 1, 0, 1],[5 ,4, 3, 2, 1, 0]]
 
 training_args :
-  learning_rate               : 2e-5
+  learning_rate               : 1e-5
   per_device_train_batch_size : 1
   per_device_eval_batch_size  : 2
-  num_train_epochs            : 1
+  num_train_epochs            : 3
   weight_decay                : 0.01
   evaluation_strategy         : 'epoch'
   save_strategy               : 'no'
@@ -36,6 +36,5 @@ training_args :
   logging_steps               : 100 
   optim                       : 'adamw_torch'
   logging_first_step          : True
-  
-  # gradient_accumulation_steps : 2,
-  # gradient_checkpointing      : True
+  gradient_accumulation_steps : 2
+  gradient_checkpointing      : True
