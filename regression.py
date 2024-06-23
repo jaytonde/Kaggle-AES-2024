@@ -110,8 +110,8 @@ def get_model(config):
 
     model_config = AutoConfig.from_pretrained(config.model_id)
     
-    model_config.attention_probs_dropout_prob = 0.25
-    model_config.hidden_dropout_prob          = 0.3
+    model_config.attention_probs_dropout_prob = 0.0
+    model_config.hidden_dropout_prob          = 0.0
     model_config.num_labels                   = 1 
 
     model = AutoModelForSequenceClassification.from_pretrained(config.model_id, config=model_config)
