@@ -1,4 +1,4 @@
-experiment_name      : "AES-EXP-36"
+experiment_name      : "AES-EXP-42"
 training_filename    : "final_train.csv"
 config_filename      : "config_longformer.yaml"
 data_dir             : "./input"
