@@ -4,12 +4,12 @@ data_dir             : "./input"
 artifacts_dir        : "./output"
 output_dir           : "${artifacts_dir}/${experiment_name}"
 fold                 : 0
-model_id             : "microsoft/deberta-v3-base"
+model_id             : "microsoft/deberta-v3-large"
 labels               : [0,1,2,3,4,5]
 num_labels           : 6
 wandb_log            : True
 wandb_project_name   : "AES"
-notes                : "max length 2048 cleaning logic added"
+notes                : "max length 4096 cleaning logic added with model microsoft/deberta-v3-large"
 truncation           : True
 max_length           : 4096
 seed                 : 2024
