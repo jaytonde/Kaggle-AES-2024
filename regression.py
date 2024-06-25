@@ -234,7 +234,7 @@ def main(config):
                 )
 
     dataset_df              = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
-    if add_persuade_data:
+    if config.add_persuade_data:
         persuade_data           = pd.read_csv(os.path.join(config.data_dir,config.non_train_file))
         persuade_data           = persuade_data[persuade_data['holistic_essay_score'].isin([1,5,6])]
 
