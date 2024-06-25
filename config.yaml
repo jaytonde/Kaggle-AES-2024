@@ -17,8 +17,10 @@ full_fit             : False
 notify_discord       : True
 num_freez_layers     : 4
 debug                : False
+add_persuade_data    : True
 train_code_file      : "regression.py"
 config_file          : "config.yaml"
+"non_train_file"     : "non_train_data.csv"
 dist_matrix          : [[0, 1, 2, 3, 4, 5], [1, 0, 1, 2, 3, 4], [2, 1, 0, 1, 2, 3], [3, 2, 1, 0, 1, 2], [4, 3, 2, 1, 0, 1],[5 ,4, 3, 2, 1, 0]]
 
 training_args :

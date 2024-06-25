@@ -234,6 +234,15 @@ def main(config):
                 )
 
     dataset_df              = pd.read_csv(os.path.join(config.data_dir,config.training_filename))
+    if add_persuade_data:
+        persuade_data           = pd.read_csv(os.path.join(config.data_dir,config.non_train_file))
+        persuade_data           = persuade_data[persuade_data['holistic_essay_score'].isin([1,5,6])]
+
+        persuade_data           = persuade_data[['essay_id_comp','full_text','holistic_essay_score']]
+        persuade_data.rename(columns={"essay_id_comp":"essay_id","holistic_essay_score":"score"})
+
+        dataset_df = pd.concat([dataset_df,persuade_data])
+        print(f"Dataset shape after adding persuade data : {dataset_df.shape}")
 
     print("Data cleaning started.....")
     dataset_df['full_text'] = dataset_df['full_text'].apply(preprocessor)
