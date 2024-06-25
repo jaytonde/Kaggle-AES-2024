@@ -242,6 +242,7 @@ def main(config):
         persuade_data.rename(columns={"essay_id_comp":"essay_id","holistic_essay_score":"score"})
 
         dataset_df = pd.concat([dataset_df,persuade_data])
+        print(f"Dataset columns after adding persuade data : {dataset_df.columns}")
         print(f"Dataset shape after adding persuade data : {dataset_df.shape}")
 
     print("Data cleaning started.....")
