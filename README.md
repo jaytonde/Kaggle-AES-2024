@@ -1,6 +1,6 @@
 # Kaggle-AES-2024
-Repository for kaggle competition pipeline.
-This was the text classification problem.
+Repository for kaggle competition pipeline. Here is the link to kaggle : https://www.kaggle.com/competitions/learning-agency-lab-automated-essay-scoring-2
+This was the text classification problem with 6 classes. For a given essay, we should grade it from 1-6..
 
 This repository has the pipeline I have used to perform the experimentation 
 in the kaggle competition.
