@@ -9,3 +9,5 @@ Some list of model I tried in this competion.
 2. RoBERTa
 3. LongFormer
 4. BigBird
+5. distilBERT
+6. XLNet
